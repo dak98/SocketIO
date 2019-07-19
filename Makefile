@@ -14,7 +14,7 @@ TESTS:=$(shell find $(TESTDIR) -type f -name *.$(EXT))
 
 CFLAGS:=-g -Wall -Wextra -std=c++17
 INC:=-I include
-LIB:=-l$(NAME) -lgtest -lstdc++
+LIB:=-l$(NAME) -lgtest -lstdc++ -pthread
 
 $(TARGET): $(OBJECTS)
 	@echo "Linking ... "

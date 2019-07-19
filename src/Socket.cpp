@@ -25,7 +25,7 @@ Socket::~Socket() {
     close(_sockfd);
 }
 
-std::string Socket::toString() const {
+inline std::string Socket::toString() const {
     return "[domain=AF_INET,type=SOCK_STREAM,protocol=0]";
 }
 
