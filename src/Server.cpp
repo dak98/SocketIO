@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cerrno>
+#include <Connection.hpp>
 #include <cstring>
 #include <exception>
 #include <limits>
@@ -23,7 +24,7 @@ Server::Server(const int port) {
 
 Server::~Server() {
     for (const auto& client : _clients) {
-	send(Message(client.getSockfd(), SERVER_EXIT, "Server has been closed"));
+	send(Message{client.getSockfd(), UNIT_EXIT, "Server has been closed"});
 	shutdown(client.getSockfd(), SHUT_RDWR);
     }
     shutdown(_socket.getSockfd(), SHUT_RDWR);
@@ -49,25 +50,18 @@ void Server::launch() {
 
 Message Server::recv() {
     auto&& [events, data] = _epoll.getEvent();
-    Message message;
-    ssize_t length = ::recv(data.fd, reinterpret_cast<void*>(&message), sizeof(Message), MSG_NOSIGNAL);
-    if (length == 0) { // Client has closed its communication.
+    Message message = SocketIO::recv(data.fd);
+    if (message.getMessageType() == UNIT_EXIT) { // Client has closed its communication.
 	auto newEnd = std::remove(std::begin(_clients), std::end(_clients), Socket{data.fd});
 	_clients.erase(newEnd, std::end(_clients));
 	_clients.shrink_to_fit();
 	_epoll.removeFd(data.fd);
     }
-    if (length == -1)
-	throw std::runtime_error{"An error occured while reading a message: " +
-		static_cast<std::string>(std::strerror(errno))};
     return message;
 }
 
 void Server::send(const Message& message) const {
-    ssize_t length = ::send(message.getSockfd(), reinterpret_cast<const void*>(&message), sizeof(Message), MSG_NOSIGNAL);
-    if (length == -1)
-	throw std::runtime_error{"An error occured while sending a message: " +
-		static_cast<std::string>(std::strerror(errno))};
+    SocketIO::send(message);			    
 }
 
 inline std::string Server::toString() const {

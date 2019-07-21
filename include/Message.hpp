@@ -8,7 +8,7 @@
 namespace SocketIO {
 
 enum MessageType {
-    SERVER_EXIT = 0
+    UNIT_EXIT = 0
 };
 
 class Message {
@@ -21,7 +21,7 @@ public:
     Message(const int sockfd, MessageType type, const std::string& message)
 	: _socket{sockfd},_type{type}, _message{message} {}
     int getSockfd() const { return _socket.getSockfd(); }
-    MessageType getMessageType() const { return _type; }
+    MessageType getMessageType() const { return _type; }    
     std::string getMessage() const { return _message; }
     inline std::string toString() const;
     friend std::ostream& operator<<(std::ostream& stream, const Message& message);
