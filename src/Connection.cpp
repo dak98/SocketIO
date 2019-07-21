@@ -2,8 +2,8 @@
 
 #include <cerrno>
 #include <cstring>
-#include <exception>
 #include <sys/socket.h>
+#include <stdexcept>
 #include <sys/types.h>
 
 namespace SocketIO {

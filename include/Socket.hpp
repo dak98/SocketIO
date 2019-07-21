@@ -14,9 +14,15 @@ public:
     explicit Socket(const int sockfd) : _sockfd{sockfd} {}
     int getSockfd() const { return _sockfd; }
     ~Socket();
-    std::string toString() const;
-    bool operator==(const Socket& socket) const { return _sockfd == socket.getSockfd(); }
-    friend std::ostream& operator<<(std::ostream& stream, const Socket& socket);
+    std::string toString() const {
+	return "{domain=AF_INET,type=SOCK_STREAM,protocol=0}";
+    }
+    friend bool operator==(const Socket& socket1, const Socket& socket2) {
+	return socket1.getSockfd() == socket2.getSockfd();
+    }
+    friend inline std::ostream& operator<<(std::ostream& stream, const Socket& socket) {
+	return stream << socket.toString();
+    }
 };
 
 } // SocketIO

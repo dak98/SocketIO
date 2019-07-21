@@ -1,7 +1,7 @@
 #include <Address.hpp>
 
-#include <exception>
 #include <endian.h>
+#include <stdexcept>	
 #include <string>
 
 namespace SocketIO {
@@ -19,14 +19,6 @@ Address::Address(const int port) {
     _addr.sin_family = AF_INET;
     _addr.sin_port = htobe16(static_cast<const in_port_t>(port));
     _addr.sin_addr.s_addr = INADDR_ANY; // Represent all the IP addresses of the machine
-}
-
-std::string Address::toString() const {
-    return "[family=AF_INET,port=" + std::to_string(_addr.sin_port) + ",addr=INADDR_ANY]";
-}
-
-std::ostream& operator<<(std::ostream& stream, const Address& address) {
-    return stream << address.toString();
 }
     
 } // SocketIO

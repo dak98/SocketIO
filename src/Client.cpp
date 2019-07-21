@@ -3,15 +3,15 @@
 #include <cerrno>
 #include <Connection.hpp>
 #include <cstring>
-#include <exception>
 #include <sys/socket.h>
+#include <stdexcept>	
 #include <sys/types.h>
 
 namespace SocketIO {
 
 Client::Client(const Address& addressOfServer)
-    : _addressOfServer{addressOfServer} {
-    const sockaddr_in addr = _addressOfServer.getAddr();
+    : _server{addressOfServer} {
+    const sockaddr_in addr = _server.getAddr();
     if (connect(_socket.getSockfd(), reinterpret_cast<const sockaddr*>(&addr), sizeof addr) == -1)
 	throw std::runtime_error{"An error occured while connecting to the server: " +
 		static_cast<std::string>(std::strerror(errno))};
@@ -32,7 +32,12 @@ void Client::send(const Message& message) const {
 }
 
 std::string Client::toString() const {
-    return "";
+    std::string info;
+    info += "{\n";
+    info += "  socket=" + _socket.toString() + "\n";
+    info += "  server=" + _server.toString() + "\n";
+    info += "}";
+    return info;
 }
     
 std::ostream& operator<<(std::ostream& stream, const Client& client) {

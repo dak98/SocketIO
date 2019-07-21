@@ -4,11 +4,12 @@
 #include <cerrno>
 #include <Connection.hpp>
 #include <cstring>
-#include <exception>
 #include <limits>
+#include <netinet/in.h>
 #include <pthread.h>
 #include <sys/epoll.h>
 #include <sys/socket.h>
+#include <stdexcept>	
 #include <sys/types.h>
 #include <unistd.h>
 
@@ -64,8 +65,24 @@ void Server::send(const Message& message) const {
     SocketIO::send(message);			    
 }
 
-inline std::string Server::toString() const {
-    return "";
+std::string Server::toString() const {
+    std::string info;
+    info += "{\n";
+    info += "  address=" + _address.toString() + "\n";
+    info += "  socket=" + _socket.toString() + "\n";
+    info += "  clients=\n";
+    info += "  {\n";
+    for (const auto& client : _clients) {
+	sockaddr_in addr;
+	socklen_t socklen{sizeof addr}; 
+	if (::getpeername(client.getSockfd(), reinterpret_cast<sockaddr*>(&addr), &socklen) == -1)
+	    throw std::runtime_error{"An error occured while trying to obtain the address of client: " +
+		    static_cast<std::string>(std::strerror(errno))};
+	info += "    {family=AF_INET,port=" + std::to_string(addr.sin_port) + ",addr=INADDR_ANY}" + "\n";
+    }	
+    info += "  }";
+    info += "}";
+    return info;
 }
 
 std::ostream& operator<<(std::ostream& stream, const Server& server) {

@@ -2,9 +2,9 @@
 
 #include <cerrno>
 #include <cstring>
-#include <exception>
-#include <string>
 #include <sys/socket.h>
+#include <stdexcept>	
+#include <string>
 #include <sys/types.h>
 #include <unistd.h>
 
@@ -23,14 +23,6 @@ Socket::~Socket() {
      * even if close() fails
      */
     close(_sockfd);
-}
-
-inline std::string Socket::toString() const {
-    return "[domain=AF_INET,type=SOCK_STREAM,protocol=0]";
-}
-
-std::ostream& operator<<(std::ostream& stream, const Socket& socket) {
-    return stream << socket.toString();
 }    
 
 } // SocketIO

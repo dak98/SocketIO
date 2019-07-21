@@ -19,8 +19,12 @@ public:
      */
     explicit Address(const int port = 0);
     sockaddr_in getAddr() const { return _addr; }
-    std::string toString() const;
-    friend std::ostream& operator<<(std::ostream& stream, const Address& address);
+    std::string toString() const {
+	return "{family=AF_INET,port=" + std::to_string(_addr.sin_port) + ",addr=INADDR_ANY}";
+    }
+    friend std::ostream& operator<<(std::ostream& stream, const Address& address) {
+	return stream << address.toString();
+    }
 };
     
 } // SocketIO

@@ -3,9 +3,6 @@
 
 #include <cstdint>
 #include <sys/epoll.h>
-#include <iostream>
-#include <queue>
-#include <string>
 
 namespace SocketIO {
 
@@ -18,8 +15,6 @@ public:
     void addFd(const int fd, const uint32_t events) const;
     void removeFd(const int fd) const;
     epoll_event getEvent() const;
-    inline std::string toString() const;
-    friend std::ostream& operator<<(std::ostream& stream, const Epoll& epoll);    
 }; // Epoll
     
 } // SocketIO

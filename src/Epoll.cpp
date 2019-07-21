@@ -1,7 +1,9 @@
+#include <Epoll.hpp>
+
 #include <cerrno>
 #include <cstring>
-#include <Epoll.hpp>
-#include <exception>
+#include <stdexcept>
+#include <string>
 #include <unistd.h>
 
 namespace SocketIO {
@@ -37,14 +39,6 @@ epoll_event Epoll::getEvent() const {
 	throw std::runtime_error{"An error occured while waiting for an epoll event: " +
 		static_cast<std::string>(std::strerror(errno))};
     return events[0];
-}
-
-inline std::string Epoll::toString() const {
-    return "";
-}
-
-std::ostream& operator<<(std::ostream& stream, const Epoll& epoll) {
-    return stream << epoll.toString();
 }
     
 } // SocketIO

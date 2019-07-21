@@ -12,7 +12,7 @@ namespace SocketIO {
 class Client {
 private:
     Socket _socket;
-    Address _addressOfServer;
+    Address _server;
 public:
     Client() = delete;
     explicit Client(const Address& addressOfServer);

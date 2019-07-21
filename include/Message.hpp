@@ -23,8 +23,14 @@ public:
     int getSockfd() const { return _socket.getSockfd(); }
     MessageType getMessageType() const { return _type; }    
     std::string getMessage() const { return _message; }
-    inline std::string toString() const;
-    friend std::ostream& operator<<(std::ostream& stream, const Message& message);
+    std::string toString() const {
+	return "{sockfd=" +	std::to_string(getSockfd()) +
+	    ",type=" + std::to_string(getMessageType()) +
+	    ",message=" + _message + "}";
+    }
+    friend std::ostream& operator<<(std::ostream& stream, const Message& message) {
+	return stream << message.toString();
+    }
 };
     
 } // SocketIO
