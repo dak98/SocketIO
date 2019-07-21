@@ -12,9 +12,9 @@ SOURCES:=$(shell find $(SRCDIR) -type f -name *.$(EXT))
 OBJECTS:=$(patsubst $(SRCDIR)/%, $(BUILDDIR)/%, $(SOURCES:.$(EXT)=.o))
 TESTS:=$(shell find $(TESTDIR) -type f -name *.$(EXT))
 
-CFLAGS:=-g -Wall -Wextra -std=c++17
+CFLAGS:=-g -Wall -Wextra -std=c++17 #-DSOCKETIO_DEBUG -DBOOST_LOG_DYN_LINK
 INC:=-I include
-LIB:=-l$(NAME) -lgtest -lstdc++ -pthread
+LIB:=-l$(NAME) -lgtest -lstdc++ -pthread #-lboost_log -lboost_log_setup
 
 $(TARGET): $(OBJECTS)
 	@echo "Linking ... "

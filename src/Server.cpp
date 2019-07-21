@@ -13,6 +13,10 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#ifdef SOCKETIO_DEBUG
+#include <Logger.hpp>
+#endif
+
 namespace SocketIO {
 
 Server::Server(const int port) {
@@ -30,6 +34,9 @@ Server::~Server() {
     }
     shutdown(_socket.getSockfd(), SHUT_RDWR);
     pthread_cancel(_acceptClientsTID.native_handle());
+    #ifdef SOCKETIO_DEBUG
+    BOOST_LOG_TRIVIAL(info) << "[SERVER] Closed the server";
+    #endif
 }
 
 void Server::_acceptClients() {
@@ -38,7 +45,14 @@ void Server::_acceptClients() {
 	if (sockfd != -1) {
 	    _epoll.addFd(sockfd, EPOLLIN);
 	    _clients.emplace_back(Socket{sockfd}); // Add a log
+	    #ifdef SOCKETIO_DEBUG
+	    BOOST_LOG_TRIVIAL(info) << "[SERVER] A new client " + std::to_string(sockfd) + " has connected";
+	    #endif
 	}
+        #ifdef SOCKETIO_DEBUG
+	else
+	    BOOST_LOG_TRIVIAL(error) << "[SERVER] An attempt to accept a client failed";
+        #endif
     }
 }
 
@@ -47,6 +61,10 @@ void Server::launch() {
 	throw std::runtime_error{"An error occured while starting the server: " +
 		static_cast<std::string>(std::strerror(errno))};
     _acceptClientsTID = std::thread(&Server::_acceptClients, this);
+    #ifdef SOCKETIO_DEBUG
+    initLogging();
+    BOOST_LOG_TRIVIAL(info) << "[SERVER] Started the server";
+    #endif
 }
 
 Message Server::recv() {
@@ -57,12 +75,21 @@ Message Server::recv() {
 	_clients.erase(newEnd, std::end(_clients));
 	_clients.shrink_to_fit();
 	_epoll.removeFd(data.fd);
+        #ifdef SOCKETIO_DEBUG
+	BOOST_LOG_TRIVIAL(info) << "[SERVER] A client " + std::to_string(data.fd) + " has disconnected";
+        #endif
     }
+    #ifdef SOCKETIO_DEBUG
+    BOOST_LOG_TRIVIAL(info) << "[SERVER] Received a new message from client " + std::to_string(data.fd);
+    #endif
     return message;
 }
 
 void Server::send(const Message& message) const {
-    SocketIO::send(message);			    
+    SocketIO::send(message);
+    #ifdef SOCKETIO_DEBUG
+    BOOST_LOG_TRIVIAL(info) << "[SERVER] Sent a message to client " + std::to_string(message.getSockfd());
+    #endif
 }
 
 std::string Server::toString() const {
