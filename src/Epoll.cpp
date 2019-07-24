@@ -15,8 +15,19 @@ Epoll::Epoll() {
 		static_cast<std::string>(std::strerror(errno))};
 }
 
+Epoll::Epoll(Epoll&& epoll)
+    : _epfd{epoll._epfd} {
+    epoll._epfd = -1;
+}
+
 Epoll::~Epoll() {
     close(_epfd);
+}
+
+Epoll& Epoll::operator=(Epoll&& epoll) {
+    _epfd = epoll._epfd;
+    epoll._epfd = -1;
+    return *this;
 }
 
 void Epoll::addFd(const int fd, const uint32_t events) const {

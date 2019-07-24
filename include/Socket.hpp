@@ -11,9 +11,17 @@ private:
     int _sockfd;
 public:
     Socket();
-    explicit Socket(const int sockfd) : _sockfd{sockfd} {}
-    int getSockfd() const { return _sockfd; }
+    explicit Socket(const int sockfd)
+	: _sockfd{sockfd} {}
+    Socket(const Socket& socket) = delete;
+    Socket(Socket&& socket);	
+
     ~Socket();
+    
+    Socket& operator=(const Socket& socket) = delete;
+    Socket& operator=(Socket&& socket);
+    
+    int getSockfd() const { return _sockfd; }    
     std::string toString() const {
 	return "{domain=AF_INET,type=SOCK_STREAM,protocol=0}";
     }

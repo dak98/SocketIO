@@ -17,6 +17,11 @@ Socket::Socket() {
 				 std::string{std::strerror(errno)});
 }
 
+Socket::Socket(Socket&& socket)
+    : _sockfd{socket._sockfd} {
+    socket._sockfd = -1;
+}    
+    
 Socket::~Socket() {
     /*
      * Error check is not done here, as the OS generally still closes the file descriptor
@@ -25,4 +30,10 @@ Socket::~Socket() {
     close(_sockfd);
 }    
 
+Socket& Socket::operator=(Socket&& socket) {    
+    _sockfd = socket._sockfd;
+    socket._sockfd = -1;
+    return *this;
+}
+    
 } // SocketIO
