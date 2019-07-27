@@ -6,7 +6,7 @@
 
 namespace SocketIO {
 
-Address::Address(const int port) {
+Address::Address(const uint32_t addr, const int port) {
     if (port < MIN_PORT || port > MAX_PORT)
 	throw std::domain_error("Port value should be in range [" +
 				std::to_string(MIN_PORT) + "; " +
@@ -18,7 +18,7 @@ Address::Address(const int port) {
 				" are system ports and should not be used.");
     _addr.sin_family = AF_INET;
     _addr.sin_port = htobe16(static_cast<const in_port_t>(port));
-    _addr.sin_addr.s_addr = INADDR_ANY; // Represent all the IP addresses of the machine
+    _addr.sin_addr.s_addr = addr;
 }
     
 } // SocketIO
