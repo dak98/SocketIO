@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <cerrno>
-#include <Connection.hpp>
 #include <cstring>
 #include <limits>
 #include <netinet/in.h>
@@ -12,6 +11,8 @@
 #include <stdexcept>	
 #include <sys/types.h>
 #include <unistd.h>
+
+#include <Connection.hpp>
 
 #ifdef SOCKETIO_DEBUG
 #include <Logger.hpp>
