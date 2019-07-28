@@ -1,7 +1,7 @@
 #ifndef SOCKETIO_CONNECTION_HPP_
 #define SOCKETIO_CONNECTION_HPP_
 
-#include <Message.hpp> 
+#include "Message.hpp"
 
 namespace SocketIO
 {

@@ -2,8 +2,9 @@
 #define SOCKETIO_MESSAGE_HPP_
 
 #include <iostream>
-#include <Socket.hpp>
 #include <string>
+
+#include "Socket.hpp"
 
 namespace SocketIO
 {
