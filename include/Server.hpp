@@ -11,16 +11,18 @@
 #include <thread>
 #include <vector>
 
-namespace SocketIO {
+namespace SocketIO
+{
 
-class Server {
+class Server
+{
 private:
-    Address _address;
-    Socket _socket;
-    Epoll _epoll;
-    std::vector<Socket> _clients;
-    std::thread _acceptClientsTID;
-    void _acceptClients();
+    Address address;
+    Socket socket;
+    Epoll epoll;
+    std::vector<Socket> clients;
+    std::thread acceptClientsTID;
+    void acceptClients();
 public:
     explicit Server(const int port = 0);
     ~Server();
@@ -33,4 +35,4 @@ public:
 
 } // SocketIO
 
-#endif
+#endif // SOCKETIO_SERVER_HPP_

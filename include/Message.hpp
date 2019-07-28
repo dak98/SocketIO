@@ -5,30 +5,35 @@
 #include <Socket.hpp>
 #include <string>
 
-namespace SocketIO {
+namespace SocketIO
+{
 
-enum MessageType {
+enum MessageType
+{
     UNIT_EXIT = 0
 };
 
-class Message {
+class Message
+{
 private:
-    Socket _socket;
-    MessageType _type;
-    std::string _message;
+    Socket socket;
+    MessageType type;
+    std::string message;
 public:
     Message() = default;
     Message(const int sockfd, MessageType type, const std::string& message)
-	: _socket{sockfd},_type{type}, _message{message} {}
-    int getSockfd() const { return _socket.getSockfd(); }
-    MessageType getMessageType() const { return _type; }    
-    std::string getMessage() const { return _message; }
-    std::string toString() const {
-	return "{sockfd=" +	std::to_string(getSockfd()) +
-	    ",type=" + std::to_string(getMessageType()) +
-	    ",message=" + _message + "}";
+	: socket{sockfd}, type{type}, message{message} {}
+    int getSockfd() const { return socket.getSockfd(); }
+    MessageType getMessageType() const { return type; }    
+    std::string getMessage() const { return message; }
+    std::string toString() const
+    {
+	return "{sockfd=" + std::to_string(getSockfd()) +
+	       ",type=" + std::to_string(getMessageType()) +
+	       ",message=" + message + "}";
     }
-    friend std::ostream& operator<<(std::ostream& stream, const Message& message) {
+    friend std::ostream& operator<<(std::ostream& stream, const Message& message)
+    {
 	return stream << message.toString();
     }
 };

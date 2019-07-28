@@ -8,7 +8,11 @@
 namespace logging = boost::log;
 namespace keywords = boost::log::keywords;
 
-inline void initLogging() {
+namespace SocketIO
+{
+
+inline void initLogging()
+{
     logging::register_simple_formatter_factory<logging::trivial::severity_level, char>("Severity");
 
     logging::add_file_log
@@ -20,4 +24,6 @@ inline void initLogging() {
     logging::add_common_attributes();
 }
 
-#endif
+} // SocketIO
+
+#endif // SOCKETIO_LOGGER_HPP_

@@ -4,11 +4,13 @@
 #include <cstdint>
 #include <sys/epoll.h>
 
-namespace SocketIO {
+namespace SocketIO
+{
 
-class Epoll {
+class Epoll
+{
 private:
-    int _epfd;
+    int epfd;
 public:
     Epoll();
     Epoll(const Epoll& epoll) = delete;

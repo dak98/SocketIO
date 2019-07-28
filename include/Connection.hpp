@@ -3,11 +3,12 @@
 
 #include <Message.hpp> 
 
-namespace SocketIO {
+namespace SocketIO
+{
 
 Message recv(const int fd);
 void send(const Message& message);
     
 } // SocketIO
 
-#endif
+#endif // SOCKETIO_CONNECTION_HPP_

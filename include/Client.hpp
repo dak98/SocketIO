@@ -1,5 +1,5 @@
-#ifndef SOCKET_IO_CLIENT_HPP_
-#define SOCKET_IO_CLIENT_HPP_
+#ifndef SOCKETIO_CLIENT_HPP_
+#define SOCKETIO_CLIENT_HPP_
 
 #include <Address.hpp>
 #include <iostream>
@@ -7,12 +7,14 @@
 #include <Socket.hpp>
 #include <string>
 
-namespace SocketIO {
+namespace SocketIO
+{
 
-class Client {
+class Client
+{
 private:
-    Socket _socket;
-    Address _server;
+    Socket socket;
+    Address server;
 public:
     Client() = delete;
     explicit Client(const Address& addressOfServer);
@@ -25,4 +27,4 @@ public:
 
 } // SocketIO
 
-#endif
+#endif // SOCKETIO_CLIENT_HPP_

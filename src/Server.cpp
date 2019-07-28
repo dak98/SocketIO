@@ -17,89 +17,106 @@
 #include <Logger.hpp>
 #endif
 
-namespace SocketIO {
+namespace SocketIO
+{
 
-Server::Server(const int port) {
-    _address = Address{port};
-    const sockaddr_in addr = _address.getAddr();
-    if (bind(_socket.getSockfd(), reinterpret_cast<const sockaddr*>(&addr), sizeof addr) == -1)
+Server::Server(const int port)
+{
+    address = Address{INADDR_ANY, port};
+    const sockaddr_in addr = address.getAddr();
+    if (bind(socket.getSockfd(), reinterpret_cast<const sockaddr*>(&addr), sizeof addr) == -1)
 	throw std::runtime_error{"An error occured while binding a socket: " +
 		static_cast<std::string>(std::strerror(errno))};
 }
 
-Server::~Server() {
-    for (const auto& client : _clients) {
+Server::~Server()
+{
+    for (const auto& client : clients)
+    {
 	send(Message{client.getSockfd(), UNIT_EXIT, "Server has been closed"});
 	shutdown(client.getSockfd(), SHUT_RDWR);
     }
-    shutdown(_socket.getSockfd(), SHUT_RDWR);
-    pthread_cancel(_acceptClientsTID.native_handle());
+    shutdown(socket.getSockfd(), SHUT_RDWR);
+    pthread_cancel(acceptClientsTID.native_handle());
     #ifdef SOCKETIO_DEBUG
-    BOOST_LOG_TRIVIAL(info) << "[SERVER] Closed the server";
+    BOOST_LOG_TRIVIAL(info) << "[SERVER] Closed the server" << std::endl;
     #endif
 }
 
-void Server::_acceptClients() {
-    for (;;) {
-	int sockfd = accept(_socket.getSockfd(), nullptr, nullptr);
+void Server::acceptClients()
+{
+    for (;;)
+    {
+	int sockfd = accept(socket.getSockfd(), nullptr, nullptr);
 	if (sockfd != -1) {
-	    _epoll.addFd(sockfd, EPOLLIN);
-	    _clients.emplace_back(Socket{sockfd}); // Add a log
+	    epoll.addFd(sockfd, EPOLLIN);
+	    clients.emplace_back(Socket{sockfd}); // Add a log
 	    #ifdef SOCKETIO_DEBUG
-	    BOOST_LOG_TRIVIAL(info) << "[SERVER] A new client " + std::to_string(sockfd) + " has connected";
+	    BOOST_LOG_TRIVIAL(info) << "[SERVER] A new client " + std::to_string(sockfd)
+				    << " has connected" << std::endl;
 	    #endif
 	}
         #ifdef SOCKETIO_DEBUG
 	else
-	    BOOST_LOG_TRIVIAL(error) << "[SERVER] An attempt to accept a client failed";
+	    BOOST_LOG_TRIVIAL(error) << "[SERVER] An attempt to accept a client failed"
+				     << std::endl;
         #endif
     }
 }
 
-void Server::launch() {
-    if (listen(_socket.getSockfd(), std::numeric_limits<int>::max()) == -1)
+void Server::launch()
+{
+    if (listen(socket.getSockfd(), std::numeric_limits<int>::max()) == -1)
 	throw std::runtime_error{"An error occured while starting the server: " +
 		static_cast<std::string>(std::strerror(errno))};
-    _acceptClientsTID = std::thread(&Server::_acceptClients, this);
+    acceptClientsTID = std::thread(&Server::acceptClients, this);
     #ifdef SOCKETIO_DEBUG
     initLogging();
-    BOOST_LOG_TRIVIAL(info) << "[SERVER] Started the server";
+    BOOST_LOG_TRIVIAL(info) << "[SERVER] Started the server" << std::endl;
     #endif
 }
 
-Message Server::recv() {
-    auto&& [events, data] = _epoll.getEvent();
+Message Server::recv()
+{
+    auto&& [events, data] = epoll.getEvent();
     Message message = SocketIO::recv(data.fd);
-    if (message.getMessageType() == UNIT_EXIT) { // Client has closed its communication.
-	auto newEnd = std::remove(std::begin(_clients), std::end(_clients), Socket{data.fd});
-	_clients.erase(newEnd, std::end(_clients));
-	_clients.shrink_to_fit();
-	_epoll.removeFd(data.fd);
+    if (message.getMessageType() == UNIT_EXIT) // Client has closed its communication
+    {	
+	auto newEnd = std::remove(std::begin(clients), std::end(clients), Socket{data.fd});
+	clients.erase(newEnd, std::end(clients));
+	clients.shrink_to_fit();
+	epoll.removeFd(data.fd);
         #ifdef SOCKETIO_DEBUG
-	BOOST_LOG_TRIVIAL(info) << "[SERVER] A client " + std::to_string(data.fd) + " has disconnected";
+	BOOST_LOG_TRIVIAL(info) << "[SERVER] A client " + std::to_string(data.fd)
+				<< " has disconnected" << std::endl;
         #endif
     }
     #ifdef SOCKETIO_DEBUG
-    BOOST_LOG_TRIVIAL(info) << "[SERVER] Received a new message from client " + std::to_string(data.fd);
+    BOOST_LOG_TRIVIAL(info) << "[SERVER] Received a new message from client "
+			    << std::to_string(data.fd) << std::endl;
     #endif
     return message;
 }
 
-void Server::send(const Message& message) const {
+void Server::send(const Message& message) const
+{
     SocketIO::send(message);
     #ifdef SOCKETIO_DEBUG
-    BOOST_LOG_TRIVIAL(info) << "[SERVER] Sent a message to client " + std::to_string(message.getSockfd());
+    BOOST_LOG_TRIVIAL(info) << "[SERVER] Sent a message to client "
+			    << std::to_string(message.getSockfd()) << std::endl;
     #endif
 }
 
-std::string Server::toString() const {
+std::string Server::toString() const
+{
     std::string info;
     info += "{\n";
-    info += "  address=" + _address.toString() + "\n";
-    info += "  socket=" + _socket.toString() + "\n";
+    info += "  address=" + address.toString() + "\n";
+    info += "  socket=" + socket.toString() + "\n";
     info += "  clients=\n";
     info += "  {\n";
-    for (const auto& client : _clients) {
+    for (const auto& client : clients)
+    {
 	sockaddr_in addr;
 	socklen_t socklen{sizeof addr}; 
 	if (::getpeername(client.getSockfd(), reinterpret_cast<sockaddr*>(&addr), &socklen) == -1)
@@ -112,7 +129,8 @@ std::string Server::toString() const {
     return info;
 }
 
-std::ostream& operator<<(std::ostream& stream, const Server& server) {
+std::ostream& operator<<(std::ostream& stream, const Server& server)
+{
     return stream << server.toString();
 }
 
