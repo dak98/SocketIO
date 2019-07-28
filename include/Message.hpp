@@ -11,25 +11,26 @@ namespace SocketIO
 
 enum MessageType
 {
-    UNIT_EXIT = 0
+    UNIT_EXIT = 0,
+    INIT_MSG  = 1
 };
 
 class Message
 {
 private:
-    Socket socket;
+    int id;
     MessageType type;
     std::string message;
 public:
     Message() = default;
-    Message(const int sockfd, MessageType type, const std::string& message)
-	: socket{sockfd}, type{type}, message{message} {}
-    int getSockfd() const { return socket.getSockfd(); }
+    Message(const int id, MessageType type, const std::string& message)
+	: id{id}, type{type}, message{message} {}
+    int getId() const { return id; }
     MessageType getMessageType() const { return type; }    
     std::string getMessage() const { return message; }
     std::string toString() const
     {
-	return "{sockfd=" + std::to_string(getSockfd()) +
+	return "{id=" + std::to_string(id) +
 	       ",type=" + std::to_string(getMessageType()) +
 	       ",message=" + message + "}";
     }

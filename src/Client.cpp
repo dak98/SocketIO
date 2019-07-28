@@ -22,6 +22,10 @@ Client::Client(const Address& addressOfServer)
     if (connect(socket.getSockfd(), reinterpret_cast<const sockaddr*>(&addr), sizeof addr) == -1)
 	throw std::runtime_error{"An error occured while connecting to the server: " +
 		static_cast<std::string>(std::strerror(errno))};
+    Message msg = recv();
+    if (msg.getMessageType() != INIT_MSG)
+	throw std::runtime_error{"Did not receive INIT_MSG from the server"};
+    id = msg.getId();
     #ifdef SOCKETIO_DEBUG
     initLogging();
     BOOST_LOG_TRIVIAL(info) << "[CLIENT] Started the client";

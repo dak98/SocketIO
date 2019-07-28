@@ -16,6 +16,7 @@ class Client
 private:
     Socket socket;
     Address server;
+    int id;
 public:
     Client() = delete;
     explicit Client(const Address& addressOfServer);

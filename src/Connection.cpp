@@ -23,7 +23,7 @@ Message recv(const int fd)
 
 void send(const Message& message)
 {
-    ssize_t length = ::send(message.getSockfd(), reinterpret_cast<const void*>(&message),
+    ssize_t length = ::send(message.getId(), reinterpret_cast<const void*>(&message),
 			    sizeof(Message), MSG_NOSIGNAL);
     if (length == -1)
 	throw std::runtime_error{"An error occured while sending a message: " +

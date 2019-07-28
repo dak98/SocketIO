@@ -34,8 +34,10 @@ Server::~Server()
 {
     for (const auto& client : clients)
     {
-	send(Message{client.getSockfd(), UNIT_EXIT, "Server has been closed"});
-	shutdown(client.getSockfd(), SHUT_RDWR);
+	const int sockfd = client.getSockfd();
+	const int id = registry.getIdBySockfd(sockfd);
+	send({id, UNIT_EXIT, "Server has been closed"});
+	shutdown(sockfd, SHUT_RDWR);
     }
     shutdown(socket.getSockfd(), SHUT_RDWR);
     pthread_cancel(acceptClientsTID.native_handle());
@@ -51,9 +53,12 @@ void Server::acceptClients()
 	int sockfd = accept(socket.getSockfd(), nullptr, nullptr);
 	if (sockfd != -1) {
 	    epoll.addFd(sockfd, EPOLLIN);
-	    clients.emplace_back(Socket{sockfd}); // Add a log
+	    clients.emplace_back(Socket{sockfd});
+	    registry.add(sockfd);
+	    send({registry.getIdBySockfd(sockfd), INIT_MSG, ""});
 	    #ifdef SOCKETIO_DEBUG
-	    BOOST_LOG_TRIVIAL(info) << "[SERVER] A new client " + std::to_string(sockfd)
+	    BOOST_LOG_TRIVIAL(info) << "[SERVER] A new client with id"
+				    << std::to_string(registry.getIdBySockfd(sockfd))
 				    << " has connected" << std::endl;
 	    #endif
 	}
@@ -82,13 +87,15 @@ Message Server::recv()
     auto&& [events, data] = epoll.getEvent();
     Message message = SocketIO::recv(data.fd);
     if (message.getMessageType() == UNIT_EXIT) // Client has closed its communication
-    {	
-	auto newEnd = std::remove(std::begin(clients), std::end(clients), Socket{data.fd});
+    {
+	const int sockfd = registry.getSockfdById(data.fd);
+	registry.removeById(data.fd);
+	auto newEnd = std::remove(std::begin(clients), std::end(clients), Socket{sockfd});
 	clients.erase(newEnd, std::end(clients));
 	clients.shrink_to_fit();
-	epoll.removeFd(data.fd);
+	epoll.removeFd(sockfd);
         #ifdef SOCKETIO_DEBUG
-	BOOST_LOG_TRIVIAL(info) << "[SERVER] A client " + std::to_string(data.fd)
+	BOOST_LOG_TRIVIAL(info) << "[SERVER] Client " + std::to_string(data.fd)
 				<< " has disconnected" << std::endl;
         #endif
     }
@@ -101,10 +108,11 @@ Message Server::recv()
 
 void Server::send(const Message& message) const
 {
-    SocketIO::send(message);
+    SocketIO::send({registry.getSockfdById(message.getId()), message.getMessageType(),
+		    message.getMessage()});
     #ifdef SOCKETIO_DEBUG
     BOOST_LOG_TRIVIAL(info) << "[SERVER] Sent a message to client "
-			    << std::to_string(message.getSockfd()) << std::endl;
+			    << std::to_string(message.getId()) << std::endl;
     #endif
 }
 
