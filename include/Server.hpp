@@ -22,7 +22,6 @@ private:
     Socket socket;
     Epoll epoll;
     Registry registry; // Registry of the clients' ids
-    std::vector<Socket> clients;
     std::thread acceptClientsTID;
     void acceptClients();
 public:

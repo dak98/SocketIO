@@ -32,11 +32,10 @@ Server::Server(const int port)
 
 Server::~Server()
 {
-    for (const auto& client : clients)
+    std::vector<int> sockfds = registry.getSockfds();
+    for (const int sockfd : sockfds)
     {
-	const int sockfd = client.getSockfd();
-	const int id = registry.getIdBySockfd(sockfd);
-	send({id, UNIT_EXIT, "Server has been closed"});
+	send({registry.getIdBySockfd(sockfd), UNIT_EXIT, "Server has been closed"});
 	shutdown(sockfd, SHUT_RDWR);
     }
     shutdown(socket.getSockfd(), SHUT_RDWR);
@@ -52,10 +51,9 @@ void Server::acceptClients()
     {
 	int sockfd = accept(socket.getSockfd(), nullptr, nullptr);
 	if (sockfd != -1) {
+	    registry.add(sockfd);   
+	    send({registry.getIdBySockfd(sockfd), INIT_MSG, "init"});
 	    epoll.addFd(sockfd, EPOLLIN);
-	    clients.emplace_back(Socket{sockfd});
-	    registry.add(sockfd);
-	    send({registry.getIdBySockfd(sockfd), INIT_MSG, ""});
 	    #ifdef SOCKETIO_DEBUG
 	    BOOST_LOG_TRIVIAL(info) << "[SERVER] A new client with id"
 				    << std::to_string(registry.getIdBySockfd(sockfd))
@@ -76,6 +74,7 @@ void Server::launch()
 	throw std::runtime_error{"An error occured while starting the server: " +
 		static_cast<std::string>(std::strerror(errno))};
     acceptClientsTID = std::thread(&Server::acceptClients, this);
+    acceptClientsTID.detach();
     #ifdef SOCKETIO_DEBUG
     initLogging();
     BOOST_LOG_TRIVIAL(info) << "[SERVER] Started the server" << std::endl;
@@ -85,31 +84,30 @@ void Server::launch()
 Message Server::recv()
 {
     auto&& [events, data] = epoll.getEvent();
-    Message message = SocketIO::recv(data.fd);
+    const int sockfd = data.fd;
+    
+    Message message = SocketIO::recv(sockfd);
     if (message.getMessageType() == UNIT_EXIT) // Client has closed its communication
     {
-	const int sockfd = registry.getSockfdById(data.fd);
-	registry.removeById(data.fd);
-	auto newEnd = std::remove(std::begin(clients), std::end(clients), Socket{sockfd});
-	clients.erase(newEnd, std::end(clients));
-	clients.shrink_to_fit();
+	registry.removeById(message.getId());
 	epoll.removeFd(sockfd);
         #ifdef SOCKETIO_DEBUG
-	BOOST_LOG_TRIVIAL(info) << "[SERVER] Client " + std::to_string(data.fd)
+	BOOST_LOG_TRIVIAL(info) << "[SERVER] Client " + std::to_string(message.getId())
 				<< " has disconnected" << std::endl;
         #endif
     }
     #ifdef SOCKETIO_DEBUG
     BOOST_LOG_TRIVIAL(info) << "[SERVER] Received a new message from client "
-			    << std::to_string(data.fd) << std::endl;
+			    << std::to_string(id) << std::endl;
     #endif
+    
     return message;
 }
 
 void Server::send(const Message& message) const
 {
-    SocketIO::send({registry.getSockfdById(message.getId()), message.getMessageType(),
-		    message.getMessage()});
+    const int sockfd = registry.getSockfdById(message.getId());
+    SocketIO::send(sockfd, message);
     #ifdef SOCKETIO_DEBUG
     BOOST_LOG_TRIVIAL(info) << "[SERVER] Sent a message to client "
 			    << std::to_string(message.getId()) << std::endl;
@@ -118,24 +116,7 @@ void Server::send(const Message& message) const
 
 std::string Server::toString() const
 {
-    std::string info;
-    info += "{\n";
-    info += "  address=" + address.toString() + "\n";
-    info += "  socket=" + socket.toString() + "\n";
-    info += "  clients=\n";
-    info += "  {\n";
-    for (const auto& client : clients)
-    {
-	sockaddr_in addr;
-	socklen_t socklen{sizeof addr}; 
-	if (::getpeername(client.getSockfd(), reinterpret_cast<sockaddr*>(&addr), &socklen) == -1)
-	    throw std::runtime_error{"An error occured while trying to obtain the address of client: " +
-		    static_cast<std::string>(std::strerror(errno))};
-	info += "    {family=AF_INET,port=" + std::to_string(addr.sin_port) + ",addr=INADDR_ANY}" + "\n";
-    }	
-    info += "  }";
-    info += "}";
-    return info;
+    return address.toString();
 }
 
 std::ostream& operator<<(std::ostream& stream, const Server& server)

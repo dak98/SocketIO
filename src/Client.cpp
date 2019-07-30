@@ -24,8 +24,9 @@ Client::Client(const Address& addressOfServer)
 		static_cast<std::string>(std::strerror(errno))};
     Message msg = recv();
     if (msg.getMessageType() != INIT_MSG)
-	throw std::runtime_error{"Did not receive INIT_MSG from the server"};
+	throw std::runtime_error{"Did not receive INIT_MSG from the server"}; 
     id = msg.getId();
+    send({id, INIT_MSG, "init"});
     #ifdef SOCKETIO_DEBUG
     initLogging();
     BOOST_LOG_TRIVIAL(info) << "[CLIENT] Started the client";
@@ -34,7 +35,7 @@ Client::Client(const Address& addressOfServer)
 
 Client::~Client()
 {
-    send(Message{socket.getSockfd(), UNIT_EXIT, "Client has been closed"});
+    send({id, UNIT_EXIT, "Client has closed the connection"});
     shutdown(socket.getSockfd(), SHUT_RDWR);
     #ifdef SOCKETIO_DEBUG
     initLogging();
@@ -53,7 +54,7 @@ Message Client::recv()
 
 void Client::send(const Message& message) const
 {
-    SocketIO::send(message);
+    SocketIO::send(socket.getSockfd(), message);
     #ifdef SOCKETIO_DEBUG
     initLogging();
     BOOST_LOG_TRIVIAL(info) << "[CLIENT] Sent a message to the server";

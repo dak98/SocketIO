@@ -12,7 +12,8 @@ namespace SocketIO
 enum MessageType
 {
     UNIT_EXIT = 0,
-    INIT_MSG  = 1
+    INIT_MSG  = 1,
+    REG_MSG = 2,
 };
 
 class Message
@@ -26,7 +27,7 @@ public:
     Message(const int id, MessageType type, const std::string& message)
 	: id{id}, type{type}, message{message} {}
     int getId() const { return id; }
-    MessageType getMessageType() const { return type; }    
+    MessageType getMessageType() const { return type; }
     std::string getMessage() const { return message; }
     std::string toString() const
     {

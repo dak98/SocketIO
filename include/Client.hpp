@@ -23,6 +23,7 @@ public:
     ~Client();
     Message recv();
     void send(const Message& message) const;
+    int getId() const { return id; }
     std::string toString() const;
     friend std::ostream& operator<<(std::ostream& stream, const Client& client);
 }; // Client

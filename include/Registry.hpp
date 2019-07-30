@@ -1,8 +1,11 @@
 #ifndef SOCKETIO_REGISTRY_HPP_
 #define SOCKETIO_REGISTRY_HPP_
 
+#include <iostream>
+
 #include <limits>
 #include <unordered_map>
+#include <vector>
 
 namespace SocketIO
 {
@@ -17,6 +20,8 @@ private:
 
     const int baseId;
 public:
+    
+    
     explicit Registry(const int baseId = 100)
 	: baseId{baseId} {}
 
@@ -27,6 +32,9 @@ public:
 
     void removeBySockfd(const int sockfd);
     void removeById(const int id);
+
+    std::vector<int> getIds() const;
+    std::vector<int> getSockfds() const;
 }; // Registry
     
 } // SocketIO
