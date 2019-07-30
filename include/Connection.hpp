@@ -7,7 +7,7 @@ namespace SocketIO
 {
 
 Message recv(const int fd);
-void send(const Message& message);
+void send(const int fd, const Message& message);
     
 } // SocketIO
 
