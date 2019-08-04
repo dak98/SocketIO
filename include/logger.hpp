@@ -8,22 +8,22 @@
 namespace logging = boost::log;
 namespace keywords = boost::log::keywords;
 
-namespace SocketIO
+namespace socket_io
 {
 
-inline void initLogging()
+inline void init_logging()
 {
     logging::register_simple_formatter_factory<logging::trivial::severity_level, char>("Severity");
 
     logging::add_file_log
     (
-        keywords::file_name = "socketIO.log",
+        keywords::file_name = "socket_io.log",
         keywords::format = "[%TimeStamp%] [%ThreadID%] [%Severity%] %Message%"
     );
 
     logging::add_common_attributes();
 }
 
-} // SocketIO
+} // socket_io
 
 #endif // SOCKETIO_LOGGER_HPP_

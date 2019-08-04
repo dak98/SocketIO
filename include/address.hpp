@@ -8,11 +8,15 @@
 #include <sys/socket.h>
 #include <string>
 
-namespace SocketIO
+namespace socket_io
+{    
+    
+class inet_address
 {
-
-class Address
-{
+/*
+ * Invariants:
+ * - Port should be an integer in range 0 u [1024, 65535]
+ */    
 private:
     sockaddr_in addr;
 public:
@@ -24,20 +28,20 @@ public:
      *
      * When port value is 0, OS assigns one of the available ephemeral ports     
      */
-    explicit Address(uint32_t const s_addr = INADDR_ANY, int const port = 0);
-    sockaddr_in getAddr() const { return addr; }
-    std::string toString() const
+    explicit address(uint32_t const s_addr = INADDR_ANY, int const port = 0);
+    sockaddr_in get_addr() const { return addr; }
+    std::string to_string() const
     {
 	return "{family=AF_INET,port=" +
 	       std::to_string(addr.sin_port) +
 	       ",addr=" + inet_ntoa(addr.sin_addr) + "}";
     }
-    friend std::ostream& operator<<(std::ostream& stream, Address const& address)
+    friend std::ostream& operator<<(std::ostream& stream, address const& address)
     {
 	return stream << address.toString();
     }
 };
     
-} // SocketIO
+} // socket_io
 
 #endif // SOCKETIO_ADDRESS_HPP_
