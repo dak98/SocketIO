@@ -18,7 +18,6 @@ private:
     Address server;
     int id;
 public:
-    Client() = delete;
     explicit Client(const Address& addressOfServer);
     ~Client();
     Message recv();
