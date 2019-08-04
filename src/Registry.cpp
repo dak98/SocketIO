@@ -5,7 +5,7 @@
 namespace SocketIO
 {
 
-int Registry::add(const int sockfd)
+int Registry::add(int const sockfd)
 {
     int id = baseId;
     bool foundId = false;
@@ -22,16 +22,16 @@ int Registry::add(const int sockfd)
     return id;
 }
 
-void Registry::removeBySockfd(const int sockfd)
+void Registry::removeBySockfd(int const sockfd)
 {
-    const int id = getIdBySockfd(sockfd);
+    int const id = getIdBySockfd(sockfd);
     idToSockfd.erase(id);
     sockfdToId.erase(sockfd);
 }
 
-void Registry::removeById(const int id)
+void Registry::removeById(int const id)
 {
-    const int sockfd = getSockfdById(id);
+    int const sockfd = getSockfdById(id);
     idToSockfd.erase(id);
     sockfdToId.erase(sockfd);
 }
@@ -40,7 +40,7 @@ std::vector<int> Registry::getIds() const
 {
     std::vector<int> ids(idToSockfd.size());
     int index = 0;
-    for (const auto& [id, sockfd] : idToSockfd)
+    for (auto const& [id, sockfd] : idToSockfd)
 	ids[index++] = id;
     return ids;
 }
@@ -49,7 +49,7 @@ std::vector<int> Registry::getSockfds() const
 {
     std::vector<int> sockfds(sockfdToId.size());
     int index = 0;
-    for (const auto& [sockfd, id] : sockfdToId)
+    for (auto const& [sockfd, id] : sockfdToId)
 	sockfds[index++] = sockfd;
     return sockfds;
 }    

@@ -12,19 +12,19 @@
 
 namespace SocketIO {
 
-static void checkErrors(const ssize_t length)
+static void checkErrors(ssize_t const length)
 {    
     if (length == -1)
 	throw std::runtime_error{"An error occured while reading a message: " +
 		static_cast<std::string>(std::strerror(errno))};
 }
 
-static inline bool hasDisconnected(const ssize_t length)
+static inline bool hasDisconnected(ssize_t const length)
 {
     return (length == 0);
 }
 
-Message recv(const int fd)
+Message recv(int const fd)
 {
     ssize_t length;
 
@@ -60,26 +60,26 @@ Message recv(const int fd)
     return Message(be32toh(id), static_cast<MessageType>(be32toh(type)), buff);
 }
 
-void send(const int fd, const Message& message)
+void send(int const fd, Message const& message)
 {
     ssize_t length;
 
-    const uint32_t id = htobe32(message.getId());
+    uint32_t const id = htobe32(message.getId());
     length = ::send(fd, reinterpret_cast<const void*>(&id),
 		    sizeof(uint32_t), MSG_NOSIGNAL);
     checkErrors(length);
 
-    const uint32_t type = htobe32(message.getMessageType());
+    uint32_t const type = htobe32(message.getMessageType());
     length = ::send(fd, reinterpret_cast<const void*>(&type),
 		    sizeof(uint32_t), MSG_NOSIGNAL);
     checkErrors(length);
 
-    const std::string msg = message.getMessage();
+    std::string const msg = message.getMessage();
     char msgStr[msg.length()];
     for (size_t i = 0; i < msg.length(); i++)
 	msgStr[i] = msg[i];
     
-    const uint32_t len = htobe32(msg.length());
+    uint32_t const len = htobe32(msg.length());
     length = ::send(fd, reinterpret_cast<const void*>(&len),
 			    sizeof(uint32_t), MSG_NOSIGNAL);    
     checkErrors(length);

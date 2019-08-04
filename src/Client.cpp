@@ -15,10 +15,10 @@
 namespace SocketIO
 {
 
-Client::Client(const Address& addressOfServer)
+Client::Client(Address const& addressOfServer)
     : server{addressOfServer}
 {
-    const sockaddr_in addr = server.getAddr();
+    sockaddr_in const addr = server.getAddr();
     if (connect(socket.getSockfd(), reinterpret_cast<const sockaddr*>(&addr), sizeof addr) == -1)
 	throw std::runtime_error{"An error occured while connecting to the server: " +
 		static_cast<std::string>(std::strerror(errno))};
@@ -52,7 +52,7 @@ Message Client::recv()
     #endif
 }
 
-void Client::send(const Message& message) const
+void Client::send(Message const& message) const
 {
     SocketIO::send(socket.getSockfd(), message);
     #ifdef SOCKETIO_DEBUG
@@ -71,7 +71,7 @@ std::string Client::toString() const
     return info;
 }
     
-std::ostream& operator<<(std::ostream& stream, const Client& client)
+std::ostream& operator<<(std::ostream& stream, Client const& client)
 {
     return stream << client.toString();
 }

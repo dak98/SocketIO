@@ -21,10 +21,10 @@
 namespace SocketIO
 {
 
-Server::Server(const int port)
+Server::Server(int const port)
 {
     address = Address{INADDR_ANY, port};
-    const sockaddr_in addr = address.getAddr();
+    sockaddr_in const addr = address.getAddr();
     if (bind(socket.getSockfd(), reinterpret_cast<const sockaddr*>(&addr), sizeof addr) == -1)
 	throw std::runtime_error{"An error occured while binding a socket: " +
 		static_cast<std::string>(std::strerror(errno))};
@@ -33,7 +33,7 @@ Server::Server(const int port)
 Server::~Server()
 {
     std::vector<int> sockfds = registry.getSockfds();
-    for (const int sockfd : sockfds)
+    for (int const sockfd : sockfds)
     {
 	send({registry.getIdBySockfd(sockfd), UNIT_EXIT, "Server has been closed"});
 	shutdown(sockfd, SHUT_RDWR);
@@ -84,7 +84,7 @@ void Server::launch()
 Message Server::recv()
 {
     auto&& [events, data] = epoll.getEvent();
-    const int sockfd = data.fd;
+    int const sockfd = data.fd;
     
     Message message = SocketIO::recv(sockfd);
     if (message.getMessageType() == UNIT_EXIT) // Client has closed its communication
@@ -104,7 +104,7 @@ Message Server::recv()
     return message;
 }
 
-void Server::send(const Message& message) const
+void Server::send(Message const& message) const
 {
     const int sockfd = registry.getSockfdById(message.getId());
     SocketIO::send(sockfd, message);
@@ -119,7 +119,7 @@ std::string Server::toString() const
     return address.toString();
 }
 
-std::ostream& operator<<(std::ostream& stream, const Server& server)
+std::ostream& operator<<(std::ostream& stream, Server const& server)
 {
     return stream << server.toString();
 }

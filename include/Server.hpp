@@ -25,13 +25,13 @@ private:
     std::thread acceptClientsTID;
     void acceptClients();
 public:
-    explicit Server(const int port = 0);
+    explicit Server(int const port = 0);
     ~Server();
     void launch();
     Message recv();
-    void send(const Message& message) const;
+    void send(Message const& message) const;
     std::string toString() const;
-    friend std::ostream& operator<<(std::ostream& stream, const Server& server);
+    friend std::ostream& operator<<(std::ostream& stream, Server const& server);
 };
 
 } // SocketIO

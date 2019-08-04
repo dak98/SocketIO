@@ -34,7 +34,7 @@ Epoll& Epoll::operator=(Epoll&& epoll)
     return *this;
 }
 
-void Epoll::addFd(const int fd, const uint32_t events) const
+void Epoll::addFd(int const fd, uint32_t const events) const
 {
     epoll_event event { events, { .fd = fd } };
     if (epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &event) == -1)
@@ -42,7 +42,7 @@ void Epoll::addFd(const int fd, const uint32_t events) const
 		static_cast<std::string>(std::strerror(errno))};
 }
 
-void Epoll::removeFd(const int fd) const
+void Epoll::removeFd(int const fd) const
 {
     epoll_event event { 0, { .fd = fd } };
     if (epoll_ctl(epfd, EPOLL_CTL_DEL, fd, &event) == -1)

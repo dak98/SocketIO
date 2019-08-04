@@ -7,7 +7,7 @@
 namespace SocketIO
 {
 
-Address::Address(const uint32_t s_addr, const int port)
+Address::Address(uint32_t const s_addr, int const port)
 {
     if (port < MIN_PORT || port > MAX_PORT)
 	throw std::domain_error("Port value should be in range [" +

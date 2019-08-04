@@ -19,19 +19,17 @@ private:
     ClientSocketMap sockfdToId;
 
     const int baseId;
-public:
-    
-    
-    explicit Registry(const int baseId = 100)
+public:        
+    explicit Registry(int const baseId = 100)
 	: baseId{baseId} {}
 
     int add(const int sockfd);
 
-    int getSockfdById(const int id) const { return idToSockfd.at(id); }
-    int getIdBySockfd(const int sockfd) const { return sockfdToId.at(sockfd); }
+    int getSockfdById(int const id) const { return idToSockfd.at(id); }
+    int getIdBySockfd(int const sockfd) const { return sockfdToId.at(sockfd); }
 
-    void removeBySockfd(const int sockfd);
-    void removeById(const int id);
+    void removeBySockfd(int const sockfd);
+    void removeById(int const id);
 
     std::vector<int> getIds() const;
     std::vector<int> getSockfds() const;

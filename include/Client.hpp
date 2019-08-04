@@ -18,13 +18,13 @@ private:
     Address server;
     int id;
 public:
-    explicit Client(const Address& addressOfServer);
+    explicit Client(Address const& addressOfServer);
     ~Client();
     Message recv();
-    void send(const Message& message) const;
+    void send(Message const& message) const;
     int getId() const { return id; }
     std::string toString() const;
-    friend std::ostream& operator<<(std::ostream& stream, const Client& client);
+    friend std::ostream& operator<<(std::ostream& stream, Client const& client);
 }; // Client
 
 } // SocketIO

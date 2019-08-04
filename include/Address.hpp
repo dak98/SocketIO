@@ -16,15 +16,15 @@ class Address
 private:
     sockaddr_in addr;
 public:
-    static const inline int MIN_PORT = 0;
-    static const inline int MAX_PORT = 65535;
-    static const inline int MAX_SYSTEM_PORT = 1023;
+    static inline int const MIN_PORT = 0;
+    static inline int const MAX_PORT = 65535;
+    static inline int const MAX_SYSTEM_PORT = 1023;
     /*
      * INADDR_ANY represent all the IP addresses of the machine
      *
      * When port value is 0, OS assigns one of the available ephemeral ports     
      */
-    explicit Address(const uint32_t s_addr = INADDR_ANY, const int port = 0);
+    explicit Address(uint32_t const s_addr = INADDR_ANY, int const port = 0);
     sockaddr_in getAddr() const { return addr; }
     std::string toString() const
     {
@@ -32,7 +32,7 @@ public:
 	       std::to_string(addr.sin_port) +
 	       ",addr=" + inet_ntoa(addr.sin_addr) + "}";
     }
-    friend std::ostream& operator<<(std::ostream& stream, const Address& address)
+    friend std::ostream& operator<<(std::ostream& stream, Address const& address)
     {
 	return stream << address.toString();
     }

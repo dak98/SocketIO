@@ -24,7 +24,7 @@ private:
     std::string message;
 public:
     Message() = default;
-    Message(const int id, MessageType type, const std::string& message)
+    Message(int const id, MessageType const type, std::string const& message)
 	: id{id}, type{type}, message{message} {}
     int getId() const { return id; }
     MessageType getMessageType() const { return type; }
@@ -35,7 +35,7 @@ public:
 	       ",type=" + std::to_string(getMessageType()) +
 	       ",message=" + message + "}";
     }
-    friend std::ostream& operator<<(std::ostream& stream, const Message& message)
+    friend std::ostream& operator<<(std::ostream& stream, Message const& message)
     {
 	return stream << message.toString();
     }
