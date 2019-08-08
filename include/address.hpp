@@ -2,45 +2,67 @@
 #define SOCKETIO_ADDRESS_HPP_
 
 #include <cstdint>
-#include <iostream>
 #include <netinet/in.h>
-#include <arpa/inet.h>
-#include <sys/socket.h>
 #include <string>
 
 namespace socket_io
-{    
-    
-class inet_address
 {
-/*
- * Invariants:
- * - Port should be an integer in range 0 u [1024, 65535]
- */    
-private:
-    sockaddr_in addr;
-public:
-    static inline int const MIN_PORT = 0;
-    static inline int const MAX_PORT = 65535;
-    static inline int const MAX_SYSTEM_PORT = 1023;
+
+template<class domain_type>
+class socket_address
+{
     /*
-     * INADDR_ANY represent all the IP addresses of the machine
-     *
-     * When port value is 0, OS assigns one of the available ephemeral ports     
+     * Invariants:
+     * - Port should be an integer unsigned in range 0 u [1024, 65535]
      */
-    explicit address(uint32_t const s_addr = INADDR_ANY, int const port = 0);
-    sockaddr_in get_addr() const { return addr; }
-    std::string to_string() const
-    {
-	return "{family=AF_INET,port=" +
-	       std::to_string(addr.sin_port) +
-	       ",addr=" + inet_ntoa(addr.sin_addr) + "}";
-    }
-    friend std::ostream& operator<<(std::ostream& stream, address const& address)
-    {
-	return stream << address.toString();
-    }
+    static_assert(std::is_same<domain_type, sockaddr_in>::value ||
+		  std::is_same<domain_type, sockaddr_in6>::value,
+		  "Only sockaddr_in and sockaddr_in6 are supported");
+    using size_type = std::string::size_type;
+public:
+    socket_address(std::string const& ip_address, uint16_t const port);
+
+    void set_ip_address(std::string const& ip_address);
+    void set_port(uint32_t const port) noexcept;
+
+    std::string get_ip_address() const noexcept;
+    uint16_t get_port() const noexcept;
+    domain_type get_native_handle() const noexcept;
+
+    std::string to_string() const noexcept;
+private:
+    domain_type handle;
+    size_type ip_address_length;
+    // is_ipv6 not necessary because of the static_assert
+    static bool constexpr is_ipv4 = std::is_same<domain_type, sockaddr_in>::value;
 };
+
+template<class domain_type>
+inline void socket_address<domain_type>::set_port(uint32_t const port) noexcept
+{
+    if constexpr(is_ipv4)
+        handle.sin_port = htons(port); // To network byte order
+    else
+	handle.sin6_port = htons(port); // To network byte order
+}
+
+template<class domain_type>
+inline uint16_t socket_address<domain_type>::get_port() const noexcept
+{
+    if constexpr(is_ipv4)
+        return ntohs(handle.sin_port);
+    else
+	return ntohs(handle.sin6_port);
+}
+
+template<class domain_type>
+inline std::string socket_address<domain_type>::to_string() const noexcept
+{    
+    return "(" + get_ip_address() + ", " + std::to_string(get_port()) + ")";
+}
+
+using ipv4_socket_address = socket_address<sockaddr_in>;
+using ipv6_socket_address = socket_address<sockaddr_in6>;    
     
 } // socket_io
 
