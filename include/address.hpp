@@ -8,6 +8,12 @@
 namespace socket_io
 {
 
+enum class ip_version
+{
+    IPv4 = AF_INET,
+    IPv6 = AF_INET6
+};
+
 template<class domain_type>
 class socket_address
 {
@@ -62,7 +68,7 @@ inline std::string socket_address<domain_type>::to_string() const noexcept
 }
 
 using ipv4_socket_address = socket_address<sockaddr_in>;
-using ipv6_socket_address = socket_address<sockaddr_in6>;    
+using ipv6_socket_address = socket_address<sockaddr_in6>;
     
 } // socket_io
 
