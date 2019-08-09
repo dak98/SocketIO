@@ -1,6 +1,8 @@
 #ifndef SOCKETIO_ADDRESS_HPP_
 #define SOCKETIO_ADDRESS_HPP_
 
+#include <boost/variant.hpp>
+
 #include <netinet/in.h>
 #include <string>
 
@@ -16,7 +18,8 @@ enum class ip_version
 template<class domain_type>
 class socket_address
 {
-    /* Invariants:
+    /* 
+     * Invariants:
      * - Port should be an integer unsigned in range 0 u [1024, 65535]
      */
     static_assert(std::is_same<domain_type, sockaddr_in>::value ||
@@ -53,6 +56,8 @@ private:
 
 using ipv4_socket_address = socket_address<sockaddr_in>;
 using ipv6_socket_address = socket_address<sockaddr_in6>;
+using ip_socket_address =
+    boost::variant<ipv4_socket_address, ipv6_socket_address>;
     
 } // socket_io
 
