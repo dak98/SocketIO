@@ -1,7 +1,6 @@
 #ifndef SOCKETIO_ADDRESS_HPP_
 #define SOCKETIO_ADDRESS_HPP_
 
-#include <cstdint>
 #include <netinet/in.h>
 #include <string>
 
@@ -17,55 +16,40 @@ enum class ip_version
 template<class domain_type>
 class socket_address
 {
-    /*
-     * Invariants:
+    /* Invariants:
      * - Port should be an integer unsigned in range 0 u [1024, 65535]
      */
     static_assert(std::is_same<domain_type, sockaddr_in>::value ||
 		  std::is_same<domain_type, sockaddr_in6>::value,
 		  "Only sockaddr_in and sockaddr_in6 are supported");
-    using size_type = std::string::size_type;
+    using size_type = std::string::size_type;        
 public:
-    socket_address(std::string const& ip_address, uint16_t const port);
+    static unsigned int constexpr MIN_PORT_VALUE = 0;
+    static unsigned int constexpr MAX_PORT_VALUE = 65535;    
+    
+    socket_address(std::string const& ip_address, std::string const& port);
 
-    void set_ip_address(std::string const& ip_address);
-    void set_port(uint32_t const port) noexcept;
+    /* 
+     * @return 1 on success, 0 if the address/port format is wrong
+     */
+    auto set_ip_address(std::string const& ip_address) -> int;
+    auto set_port(std::string const& port) -> int;
 
-    std::string get_ip_address() const noexcept;
-    uint16_t get_port() const noexcept;
-    domain_type get_native_handle() const noexcept;
+    /*
+     * @throws std::bad_alloc from std::string constructor
+     */
+    auto get_ip_address() const -> std::string;
+    auto get_port() const -> std::string;
+    auto get_native_handle() const noexcept -> domain_type { return handle; }
 
-    std::string to_string() const noexcept;
+    auto to_string() const -> std::string;
 private:
     domain_type handle;
     size_type ip_address_length;
     // is_ipv6 not necessary because of the static_assert
-    static bool constexpr is_ipv4 = std::is_same<domain_type, sockaddr_in>::value;
+    static bool constexpr is_ipv4 =
+	std::is_same<domain_type, sockaddr_in>::value;
 };
-
-template<class domain_type>
-inline void socket_address<domain_type>::set_port(uint32_t const port) noexcept
-{
-    if constexpr(is_ipv4)
-        handle.sin_port = htons(port); // To network byte order
-    else
-	handle.sin6_port = htons(port); // To network byte order
-}
-
-template<class domain_type>
-inline uint16_t socket_address<domain_type>::get_port() const noexcept
-{
-    if constexpr(is_ipv4)
-        return ntohs(handle.sin_port);
-    else
-	return ntohs(handle.sin6_port);
-}
-
-template<class domain_type>
-inline std::string socket_address<domain_type>::to_string() const noexcept
-{    
-    return "(" + get_ip_address() + ", " + std::to_string(get_port()) + ")";
-}
 
 using ipv4_socket_address = socket_address<sockaddr_in>;
 using ipv6_socket_address = socket_address<sockaddr_in6>;

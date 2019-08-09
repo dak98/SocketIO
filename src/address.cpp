@@ -1,41 +1,31 @@
 #include <address.hpp>
 
+#include <cstdint>
 #include <arpa/inet.h>
 #include <stdexcept>
+
+#include <utils.hpp>
 
 namespace socket_io
 {
     
-template<class domain_type>
-socket_address<domain_type>::socket_address(std::string const& ip_address,
-					    uint16_t const port)
-    : ip_address_length{ip_address.length()}
+template<class T>
+socket_address<T>::socket_address(std::string const& ip_address,
+				  std::string const& port)
+    : handle{} // Set the structure to zero
 {
-    int error_code;
+    if (set_ip_address(ip_address) == 0)
+	throw std::invalid_argument{ip_address + " is not in a valid address format"};
+    if (set_port(port) == 0)
+	throw std::invalid_argument{port + " is not in a valid port format"};
     if constexpr(is_ipv4)
-    {
-        error_code = inet_pton(AF_INET, ip_address.c_str(),
-			       static_cast<void*>(&handle.sin_addr));
 	handle.sin_family = AF_INET;
-	handle.sin_port = htons(port); // To network byte order
-    }
     else
-    {	
-	handle = sockaddr_in6{}; // Set the structure to zero
-	error_code = inet_pton(AF_INET6, ip_address.c_str(),
-			       static_cast<void*>(&handle.sin6_addr));
 	handle.sin6_family = AF_INET6;
-	handle.sin6_port = htons(port); // To network byte order
-    }
-    if (error_code == 0)
-	throw std::invalid_argument{ip_address + " is not in a valid format"};
 }
-
-template class socket_address<sockaddr_in>;
-template class socket_address<sockaddr_in6>;
     
-template<class domain_type>    
-void socket_address<domain_type>::set_ip_address(std::string const& ip_address)
+template<class T>    
+auto socket_address<T>::set_ip_address(std::string const& ip_address) -> int
 {
     int error_code;
     if constexpr(is_ipv4)
@@ -44,25 +34,72 @@ void socket_address<domain_type>::set_ip_address(std::string const& ip_address)
     else
 	error_code = inet_pton(AF_INET6, ip_address.c_str(),
 			     static_cast<void*>(&handle.sin6_addr));
-    if(error_code == 0)
-	throw std::invalid_argument{ip_address + " is not in a valid format"};
+    /* 
+     * Error checking for EAFNOSUPPORT no necessary as AF_INET and AF_INET6 are
+     * valid address families
+    */ 
+    if (error_code == 0)
+	return 0;
     ip_address_length = ip_address.length();
+    return 1;
 }
 
-template<class domain_type>    
-std::string socket_address<domain_type>::get_ip_address() const noexcept
+template<class T>
+auto socket_address<T>::set_port(std::string const& port) -> int
+{
+    // long is guaranteed to have at least 32 bites => can hold uint16_t
+    long const port_as_integer = string_to_signed_integer<long>(port);
+    if (port_as_integer < MIN_PORT_VALUE || port_as_integer > MAX_PORT_VALUE)
+	return 0;
+    if constexpr(is_ipv4)
+        handle.sin_port = htons(port_as_integer); // To network byte order
+    else
+	handle.sin6_port = htons(port_as_integer); // To network byte order
+    return 1;
+}    
+
+template<class T>
+auto socket_address<T>::get_ip_address() const -> std::string
 {
     size_type const buffer_length = ip_address_length + 1;
-    char* buffer = new char[buffer_length];
-    /* Error checking is no necessary as:
+    char buffer[buffer_length];
+    /* 
+     * Error checking is no necessary as:
      * - AF_INET or AF_INET6 is a valid address family (no EAFNOSUPPORT)
      * - ip_address_length is a proper length of the address (no ENOSPC)
-     */    
+     */
     if constexpr(is_ipv4)
         inet_ntop(AF_INET, &handle.sin_addr, buffer, buffer_length);
     else
 	inet_ntop(AF_INET6, &handle.sin6_addr, buffer, buffer_length);
     return buffer;
 }
+
+template<class T>
+auto socket_address<T>::get_port() const -> std::string
+{
+    long port_as_integer;
+    if constexpr(is_ipv4)
+	port_as_integer = ntohs(handle.sin_port);
+    else
+	port_as_integer = ntohs(handle.sin6_port);
+    return std::to_string(port_as_integer);
+}
+    
+template<class T>
+auto socket_address<T>::to_string() const -> std::string
+{    
+    std::string address_family;
+    if constexpr(is_ipv4)
+        address_family = "IPv4";
+    else
+	address_family = "IPv6";
+    return "(" + address_family +   ", " +
+	         get_ip_address() + ", " +
+	         get_port() + ")";
+}
+    
+template class socket_address<sockaddr_in>;
+template class socket_address<sockaddr_in6>;
     
 } // socket_io
