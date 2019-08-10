@@ -29,8 +29,8 @@ public:
     /* 
      * @return 1 on success, 0 if the address/port format is wrong
      */
-    auto set_ip_address(std::string const& ip_address) -> int;
-    auto set_port(std::string const& port) -> int;
+    auto set_ip_address(std::string const& ip_address) noexcept -> int;
+    auto set_port(std::string const& port) noexcept -> int;
 
     /*
      * @throws std::bad_alloc from std::string constructor
@@ -39,6 +39,9 @@ public:
     auto get_port() const -> std::string;
     auto get_native_handle() const noexcept -> domain_type { return handle; }
 
+    /*
+     * @throws std::bad_alloc from std::string constructor
+     */
     auto to_string() const -> std::string;
 private:
     domain_type handle;

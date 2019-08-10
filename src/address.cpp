@@ -25,7 +25,8 @@ socket_address<T>::socket_address(std::string const& ip_address,
 }
     
 template<class T>    
-auto socket_address<T>::set_ip_address(std::string const& ip_address) -> int
+auto socket_address<T>::set_ip_address(std::string const& ip_address) noexcept
+    -> int
 {
     int error_code;
     if constexpr(is_ipv4)
@@ -45,7 +46,7 @@ auto socket_address<T>::set_ip_address(std::string const& ip_address) -> int
 }
 
 template<class T>
-auto socket_address<T>::set_port(std::string const& port) -> int
+auto socket_address<T>::set_port(std::string const& port) noexcept -> int
 {
     // long is guaranteed to have at least 32 bites => can hold uint16_t
     long const port_as_integer = string_to_signed_integer<long>(port);
