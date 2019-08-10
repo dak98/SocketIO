@@ -1,6 +1,8 @@
 #ifndef SOCKETIO_UTILS_HPP_
 #define SOCKETIO_UTILS_HPP_
 
+#include <cerrno>
+#include <cstring>
 #include <limits>
 #include <stdexcept>
 #include <string>
@@ -31,6 +33,12 @@ catch (std::invalid_argument const& e)
 catch (std::out_of_range const& e)
 {
     return static_cast<signed_integer>(-2);
+}
+
+// This version is not thread-safe
+auto get_errno_as_string() -> std::string
+{
+    return std::strerror(errno);
 }
 
 
