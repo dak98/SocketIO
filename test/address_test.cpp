@@ -1,6 +1,6 @@
-#include <address.hpp>
-
 #include <iostream>
+
+#include <address.hpp>
 
 int main()
 {

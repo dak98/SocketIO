@@ -14,10 +14,8 @@ socket_address<T>::socket_address(std::string const& ip_address,
 				  std::string const& port)
     : handle{} // Set the structure to zero
 {
-    if (set_ip_address(ip_address) == 0)
-	throw std::invalid_argument{ip_address + " is not in a valid address format"};
-    if (set_port(port) == 0)
-	throw std::invalid_argument{port + " is not in a valid port format"};
+    set_ip_address(ip_address);
+    set_port(port);
     if constexpr(is_ipv4)
 	handle.sin_family = AF_INET;
     else
@@ -25,8 +23,7 @@ socket_address<T>::socket_address(std::string const& ip_address,
 }
     
 template<class T>    
-auto socket_address<T>::set_ip_address(std::string const& ip_address) noexcept
-    -> int
+auto socket_address<T>::set_ip_address(std::string const& ip_address) -> void
 {
     int error_code;
     if constexpr(is_ipv4)
@@ -35,28 +32,23 @@ auto socket_address<T>::set_ip_address(std::string const& ip_address) noexcept
     else
 	error_code = inet_pton(AF_INET6, ip_address.c_str(),
 			     static_cast<void*>(&handle.sin6_addr));
-    /* 
+    /*
      * Error checking for EAFNOSUPPORT no necessary as AF_INET and AF_INET6 are
      * valid address families
-    */ 
+    */
     if (error_code == 0)
-	return 0;
+	throw std::invalid_argument{ip_address + " is not a valid IP address"};
     ip_address_length = ip_address.length();
-    return 1;
 }
 
 template<class T>
-auto socket_address<T>::set_port(std::string const& port) noexcept -> int
+auto socket_address<T>::set_port(std::string const& port) -> void
 {
-    // long is guaranteed to have at least 32 bites => can hold uint16_t
-    long const port_as_integer = string_to_signed_integer<long>(port);
-    if (port_as_integer < MIN_PORT_VALUE || port_as_integer > MAX_PORT_VALUE)
-	return 0;
+    long const port_as_integer = string_to_integer<uint16_t>(port);
     if constexpr(is_ipv4)
         handle.sin_port = htons(port_as_integer); // To network byte order
     else
 	handle.sin6_port = htons(port_as_integer); // To network byte order
-    return 1;
 }    
 
 template<class T>

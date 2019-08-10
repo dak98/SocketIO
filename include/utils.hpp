@@ -9,33 +9,27 @@
 #include <type_traits>
 
 /*
- * @brief Convertes value in str to a signed integer in base 10
- * @returns Converted value or:
- *          - -1 => conversion could not be performed
- *          - -2 => over- or underflow occured
+ * @brief Convertes value in str to an integer in base 10
+ * @returns Converted value
+ * @throws std::invalid_argument => no conversion could be performed
+ *         std::out_of_range => absolute value is too large
  */
-template<typename signed_integer>
-auto string_to_signed_integer(std::string const& str) noexcept -> signed_integer
-try
+template<typename integer>
+auto string_to_integer(std::string const& str) -> integer
 {
-    static_assert(std::is_integral<signed_integer>::value &&
-		  std::is_signed<signed_integer>::value);
+    static_assert(std::is_integral<integer>::value);
     const long long converted_integer = std::stoi(str, 0, 10);
-    if (converted_integer < std::numeric_limits<signed_integer>::min() ||
-	converted_integer > std::numeric_limits<signed_integer>::max())
-	return static_cast<signed_integer>(-2);	
-    return static_cast<signed_integer>(converted_integer);    
-}
-catch (std::invalid_argument const& e)
-{
-    return static_cast<signed_integer>(-1);
-}
-catch (std::out_of_range const& e)
-{
-    return static_cast<signed_integer>(-2);
+    if (converted_integer < std::numeric_limits<integer>::min() ||
+	converted_integer > std::numeric_limits<integer>::max())
+	throw std::out_of_range{"Input value out of range"};
+    return static_cast<integer>(converted_integer);
 }
 
-// This version is not thread-safe
+/*
+ * This version is not thread-safe
+ *
+ * @throws std::bad_alloc => from std::string constructor
+ */
 inline auto get_errno_as_string() -> std::string
 {
     return std::strerror(errno);

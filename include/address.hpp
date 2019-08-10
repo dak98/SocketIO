@@ -21,26 +21,35 @@ class socket_address
 		  "Only sockaddr_in and sockaddr_in6 are supported");
     using size_type = std::string::size_type;        
 public:
-    static unsigned int constexpr MIN_PORT_VALUE = 0;
-    static unsigned int constexpr MAX_PORT_VALUE = 65535;    
-    
+    /*
+     * @throws std::invalid_argument => argument is not a proper IP address or
+     *                                  port
+     *         std::out_of_range => port value out of range
+     */
     socket_address(std::string const& ip_address, std::string const& port);
 
     /* 
-     * @return 1 on success, 0 if the address/port format is wrong
+     * @throws std::invalid_argument => argument is not a proper IP address
      */
-    auto set_ip_address(std::string const& ip_address) noexcept -> int;
-    auto set_port(std::string const& port) noexcept -> int;
+    auto set_ip_address(std::string const& ip_address) -> void;
+    /* 
+     * @throws std::invalid_argument => argument is not a proper port
+     *         std::out_of_range => port value out of range
+     */    
+    auto set_port(std::string const& port) -> void;
 
     /*
-     * @throws std::bad_alloc from std::string constructor
+     * @throws std::bad_alloc => from std::string constructor
      */
     auto get_ip_address() const -> std::string;
+    /*
+     * @throws std::bad_alloc => from std::string constructor
+     */    
     auto get_port() const -> std::string;
     auto get_native_handle() const noexcept -> domain_type { return handle; }
 
     /*
-     * @throws std::bad_alloc from std::string constructor
+     * @throws std::bad_alloc => from std::string constructor
      */
     auto to_string() const -> std::string;
 private:
