@@ -36,10 +36,9 @@ catch (std::out_of_range const& e)
 }
 
 // This version is not thread-safe
-auto get_errno_as_string() -> std::string
+inline auto get_errno_as_string() -> std::string
 {
     return std::strerror(errno);
 }
-
 
 #endif
