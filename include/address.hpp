@@ -9,12 +9,6 @@
 namespace socket_io
 {
 
-enum class ip_version
-{
-    IPv4 = AF_INET,
-    IPv6 = AF_INET6
-};
-
 template<class domain_type>
 class socket_address
 {
