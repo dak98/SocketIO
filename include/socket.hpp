@@ -15,7 +15,7 @@ class socket
 {
 public:
     /*
-     * @throws std::runtime_error => an error occured while creating a socket
+     * @throws - std::runtime_error => an error occured while creating a socket
      */
     socket(ip_protocol const& ip_version);    
 
@@ -37,15 +37,35 @@ public:
      */
     auto bind(ipv4_socket_address const& to_bind) -> void;
     auto bind(ipv6_socket_address const& to_bind) -> void;
+
+    /*
+     * @throws - std::logic_error => client already connected
+     *         - std::logic_error => ip protocols mismatch
+     *         - std::runtime_error => an error occured while connecting
+     */    
+    auto connect(ipv4_socket_address const& address_of_server) -> void;
+    auto connect(ipv6_socket_address const& address_of_server) -> void;    
+
+    /*
+     * @returns The address to which the socket was bound
+     */
+    auto get_bound_address() const noexcept
+	-> boost::optional<ip_socket_address> { return bound_address; }
+    /*
+     * @returns The address to which the client was connected
+     */    
+    auto get_address_of_server() const noexcept
+	-> boost::optional<ip_socket_address> { return connected_address; }
     
     /*
-     * @throws std::bad_alloc from std::string constructor
+     * @throws - std::bad_alloc => from std::string constructor
      */
     auto to_string() const -> std::string;
 private:
     int handle;
     ip_protocol ip_version;
     boost::optional<ip_socket_address> bound_address;
+    boost::optional<ip_socket_address> connected_address;    
 };
 
 } // socket_io
