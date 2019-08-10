@@ -22,34 +22,32 @@ class socket_address
     using size_type = std::string::size_type;        
 public:
     /*
-     * @throws std::invalid_argument => argument is not a proper IP address or
-     *                                  port
-     *         std::out_of_range => port value out of range
+     * @throws - std::invalid_argument => argument is not a proper IP address or
+     *                                    port
+     *         - std::out_of_range => port value out of range
      */
     socket_address(std::string const& ip_address, std::string const& port);
 
     /* 
-     * @throws std::invalid_argument => argument is not a proper IP address
+     * @throws - std::invalid_argument => argument is not a proper IP address
      */
     auto set_ip_address(std::string const& ip_address) -> void;
     /* 
-     * @throws std::invalid_argument => argument is not a proper port
-     *         std::out_of_range => port value out of range
+     * @throws - std::invalid_argument => argument is not a proper port
+     *         - std::out_of_range => port value out of range
      */    
     auto set_port(std::string const& port) -> void;
 
     /*
-     * @throws std::bad_alloc => from std::string constructor
+     * @throws - std::bad_alloc => from std::string constructor
      */
     auto get_ip_address() const -> std::string;
-    /*
-     * @throws std::bad_alloc => from std::string constructor
-     */    
     auto get_port() const -> std::string;
+    
     auto get_native_handle() const noexcept -> domain_type { return handle; }
 
     /*
-     * @throws std::bad_alloc => from std::string constructor
+     * @throws - std::bad_alloc => from std::string constructor
      */
     auto to_string() const -> std::string;
 private:

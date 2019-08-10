@@ -11,8 +11,8 @@
 /*
  * @brief Convertes value in str to an integer in base 10
  * @returns Converted value
- * @throws std::invalid_argument => no conversion could be performed
- *         std::out_of_range => absolute value is too large
+ * @throws - std::invalid_argument => no conversion could be performed
+ *         - std::out_of_range => absolute value is too large
  */
 template<typename integer>
 auto string_to_integer(std::string const& str) -> integer
@@ -28,7 +28,7 @@ auto string_to_integer(std::string const& str) -> integer
 /*
  * This version is not thread-safe
  *
- * @throws std::bad_alloc => from std::string constructor
+ * @throws - std::bad_alloc => from std::string constructor
  */
 inline auto get_errno_as_string() -> std::string
 {
