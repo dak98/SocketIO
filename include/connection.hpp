@@ -1,13 +1,26 @@
 #ifndef SOCKETIO_CONNECTION_HPP_
 #define SOCKETIO_CONNECTION_HPP_
 
-#include "message.hpp"
+#include "address.hpp"
+#include "socket.hpp"
 
 namespace socket_io
 {
 
-message recv(int const fd);
-void send(int const fd, message const& message);
+/*
+ * @throws - std::logic_error => ip protocols mismatch
+ *         - std::runtime_error => an error occured while binding
+ */
+auto bind(socket const& unbound, ipv4_socket_address const& to_bind) -> void;
+auto bind(socket const& unbound, ipv6_socket_address const& to_bind) -> void;    
+    
+/*
+ * @throws - std::logic_error => ip protocols mismatch
+ *         - std::runtime_error => an error occured while connecting to the
+ *                                 server
+ */
+auto connect(socket const& client, ipv4_socket_address const& server) -> void;
+auto connect(socket const& client, ipv6_socket_address const& server) -> void;    
     
 } // socket_io
 
