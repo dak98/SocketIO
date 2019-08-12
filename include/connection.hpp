@@ -8,11 +8,10 @@ namespace socket_io
 {
 
 /*
- * @throws - std::logic_error => ip protocols mismatch
+ * @throws - std::logic_error => socket and address have different protocols
  *         - std::runtime_error => an error occured while binding
  */
-auto bind(socket const& unbound, ipv4_socket_address const& to_bind) -> void;
-auto bind(socket const& unbound, ipv6_socket_address const& to_bind) -> void;
+auto bind(socket const& unbound, ip_socket_address const& to_bind) -> void;
     
 } // socket_io
 
