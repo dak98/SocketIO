@@ -1,9 +1,6 @@
 #ifndef SOCKETIO_REGISTRY_HPP_
 #define SOCKETIO_REGISTRY_HPP_
 
-#include <iostream>
-
-#include <limits>
 #include <unordered_map>
 #include <vector>
 
@@ -11,33 +8,41 @@ namespace socket_io
 {
 
 // It is NOT thread-safe.
-class registry
+class registry_of_clients
 {
-private:
-    using client_socket_map = std::unordered_map<int, int>;
-    client_socket_map id_to_sockfd;
-    client_socket_map sockfd_to_id;
-
-    const int base_id;
-public:        
-    explicit registry(int const baseId = 100)
+    using client_id = int;
+    using socket_id = int;
+public:
+    explicit registry_of_clients(int const base_id = 100)
 	: base_id{base_id} {}
 
     /*
-     * @return Id of the new entry. 
+     * @returns Id of the new entry
+     * @throws - std::runtime_error => no free ID available
      */
-    int add(const int sockfd);
+    auto add(int const sockfd) -> int;
 
-    int get_sockfd(int const id) const { return id_to_sockfd.at(id); }
-    int get_id(int const sockfd) const { return sockfd_to_id.at(sockfd); }
+    /*
+     * @throws - std::out_of_range => element with specified key does not exist
+     */
+    auto get_sockfd(int const id) const -> int
+    { return client_to_socket.at(id); }
+    auto get_id(int const sockfd) const -> int
+    { return socket_to_client.at(sockfd); }
 
-    // TODO: Refactor.
-    void removeBySockfd(int const sockfd);
-    void removeById(int const id);
+    auto remove_by_sockfd(int const sockfd) noexcept -> void;
+    auto remove_by_id(int const id) noexcept -> void;
 
-    std::vector<int> get_ids() const;
-    std::vector<int> get_sockfds() const;
-}; // registry
+    /*
+     * @throws - std::bad_alloc => could not allocate the vector
+     */
+    auto get_ids() const -> std::vector<client_id>;
+    auto get_sockfds() const -> std::vector<socket_id>;
+private:
+    int const base_id;    
+    std::unordered_map<client_id, socket_id> client_to_socket;
+    std::unordered_map<socket_id, client_id> socket_to_client;
+}; // registry_of_clients
     
 } // socket_io
 
