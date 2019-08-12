@@ -17,8 +17,15 @@ public:
      *         - std::runtime_error => an error occured while connecting to the
      *                                 server
      */
-    explicit client(ipv4_socket_address const& address_of_server);
-    explicit client(ipv6_socket_address const& address_of_server);
+    explicit client(ip_socket_address const& address_of_server);
+    /*
+     *  Constructor with l-value reference not provided as the socket class
+     *  cannot be copied
+     */
+    /*
+     * @throws - std::logic_error => socket and address have different protocols
+     */
+    client(socket&& main_socket, ip_socket_address const& address_of_server);
 
     // Copy operations are deleted as sockets cannot be copied
     client(client const& other) = delete;
