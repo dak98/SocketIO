@@ -14,7 +14,14 @@ public:
     /*
      * @throws - std::runtime_error => an error occured while creating a socket
      */
-    socket(ip_protocol const& ip_version);    
+    socket(ip_protocol const& ip_version);
+    /*
+     * @throws - std::invalid_argument => socket's protocol and ip_version
+     *                                    differ
+     *         - std::invalid_argument => Argument is not a valid socket
+     *         - std::runtime_error => out of resources
+     */
+    socket(int const sockfd, ip_protocol const& ip_version);
 
     // Copy operations are deleted as they would splot the objects
     socket(socket const& other) = delete;
