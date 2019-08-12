@@ -14,10 +14,9 @@ public:
     /*
      * @throws - std::runtime_error => an error occured while creating a socket
      */
-    socket(ip_protocol const& ip_version);
+    explicit socket(ip_protocol const& ip_version);
     /*
-     * @throws - std::invalid_argument => socket's protocol and ip_version
-     *                                    differ
+     * @throws - std::logic_error => socket and address have different protocols
      *         - std::invalid_argument => Argument is not a valid socket
      *         - std::runtime_error => out of resources
      */

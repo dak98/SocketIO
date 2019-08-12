@@ -25,22 +25,22 @@ socket::socket(ip_protocol const& ip_version)
 
 socket::socket(int const sockfd, ip_protocol const& ip_version)
 {
-    socklen_t length;
+    socklen_t addrlen;
     sockaddr* addr;
     if (ip_version == ip_protocol::IPv4)
     {		    
-        length = sizeof(sockaddr_in);
+        addrlen = sizeof(sockaddr_in);
 	sockaddr_in addr_in;
 	addr = reinterpret_cast<sockaddr*>(&addr_in);
     }
     else
     {
-        length = sizeof(sockaddr_in);
+        addrlen = sizeof(sockaddr_in);
 	sockaddr_in6 addr_in6;
 	addr = reinterpret_cast<sockaddr*>(&addr_in6);
     }
 
-    getsockname(sockfd, addr, &length);
+    getsockname(sockfd, addr, &addrlen);
 
     // EFAULT and EINVAL should not happen so they are not checked
     if (errno == EBADF || errno == ENOTSOCK)
@@ -49,7 +49,7 @@ socket::socket(int const sockfd, ip_protocol const& ip_version)
 	throw std::runtime_error{"Out of resources"};
 
     if (addr->sa_family != static_cast<int>(ip_version))
-	throw std::invalid_argument{"Socket's protocol and ip_version differ"};
+	throw std::logic_error{"Socket and address have different protocols"};
 }
 
 socket::socket(socket&& other) noexcept
