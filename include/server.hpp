@@ -41,8 +41,8 @@ public:
     auto send(int const client_id, std::string const& message) const -> void;
 private:
     ip_protocol ip_version;
+    socket main_socket;    
     ip_socket_address address_of_server;
-    socket main_socket;
     epoll epoll;
     registry_of_clients connected;
 }; // server

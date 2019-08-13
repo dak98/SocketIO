@@ -32,7 +32,7 @@ server::server(std::string const& port, ip_protocol const& ip_version)
     : ip_version{ip_version}, main_socket{ip_version},
       address_of_server{ipv4_socket_address{"INADDR_ANY", port}}
 {
-    if (ip_version == ip_protocol::IPv6)
+    if (this->ip_version == ip_protocol::IPv6)
 	address_of_server = ipv6_socket_address{"in6addr_any", port};
 
     bind(main_socket, address_of_server);

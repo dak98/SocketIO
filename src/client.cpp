@@ -8,6 +8,7 @@
 #include <utility>
 
 #include <communication.hpp>
+#include <connection.hpp>
 #include <utils.hpp>
 
 namespace socket_io
