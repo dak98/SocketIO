@@ -55,7 +55,7 @@ client::client(socket&& main_socket,
     
 client::~client() noexcept
 {
-    shutdown(main_socket.get_native_handle(), SHUT_RDWR);
+    shutdown(main_socket);
 }
 
 auto client::send(std::string const& message) -> void

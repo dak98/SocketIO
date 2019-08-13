@@ -52,5 +52,10 @@ auto accept(socket const& server) -> socket
 				 get_errno_as_string()};
     return socket{sockfd, server.get_ip_protocol()};
 }
+
+auto shutdown(socket const& connected) noexcept -> void
+{
+    shutdown(connected.get_native_handle(), SHUT_RDWR);
+}
     
 } // socket_io

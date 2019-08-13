@@ -20,6 +20,8 @@ auto bind(socket const& unbound, ip_socket_address const& to_bind) -> void;
  * @throws - std::runtime_error => an error occured while accepting a client 
  */
 auto accept(socket const& server) -> socket;
+
+auto shutdown(socket const& connected) noexcept -> void;
     
 } // socket_io
 
