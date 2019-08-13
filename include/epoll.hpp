@@ -43,6 +43,8 @@ public:
      */
     auto add(socket const& to_monitor, uint32_t const events) -> void;
     /*
+     * If the socket is not being monitored, nothing happends
+     *
      * @throws - std::runtime_error => an error occured while removing a fd
      */
     auto remove(socket const& to_stop_monitor) -> void;

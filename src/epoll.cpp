@@ -57,8 +57,13 @@ auto epoll::remove(socket const& to_stop_monitor) -> void
     int const sockfd = to_stop_monitor.get_native_handle();
     epoll_event event { 0, { .fd = sockfd } };
     if (epoll_ctl(handle, EPOLL_CTL_DEL, sockfd, &event) == -1)
+    {
+	if (errno == EBADF)
+	    return;	
 	throw std::runtime_error{"An error occured while removing a fd: " +
 		                 get_errno_as_string()};
+    }
+    
     auto new_end = std::remove_if(std::begin(monitored_sockets),
 				  std::end(monitored_sockets),
 				  [=](socket_data const& data)
