@@ -25,13 +25,23 @@ socket_address<T>::socket_address(std::string const& ip_address,
 template<class T>    
 auto socket_address<T>::set_ip_address(std::string const& ip_address) -> void
 {
-    int error_code;
+    int error_code = 1;
     if constexpr(is_ipv4)
-        error_code = inet_pton(AF_INET, ip_address.c_str(),
-			     static_cast<void*>(&handle.sin_addr));
+    {
+	if (ip_address == "INADDR_ANY")
+	    handle.sin_addr.s_addr = INADDR_ANY;
+	else
+            error_code = inet_pton(AF_INET, ip_address.c_str(),
+			           static_cast<void*>(&handle.sin_addr));
+    }
     else
-	error_code = inet_pton(AF_INET6, ip_address.c_str(),
-			     static_cast<void*>(&handle.sin6_addr));
+    {
+	if (ip_address == "in6addr_any")
+	    handle.sin6_addr = in6addr_any;
+	else
+	    error_code = inet_pton(AF_INET6, ip_address.c_str(),
+			           static_cast<void*>(&handle.sin6_addr));
+    }
     /*
      * Error checking for EAFNOSUPPORT no necessary as AF_INET and AF_INET6 are
      * valid address families
