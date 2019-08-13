@@ -12,6 +12,14 @@ namespace socket_io
  *         - std::runtime_error => an error occured while binding
  */
 auto bind(socket const& unbound, ip_socket_address const& to_bind) -> void;
+
+/*
+ * The address of the client which connected is not returned as the server does
+ * not need it for communication
+ *
+ * @throws - std::runtime_error => an error occured while accepting a client 
+ */
+auto accept(socket const& server) -> socket;
     
 } // socket_io
 

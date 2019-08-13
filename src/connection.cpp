@@ -41,7 +41,16 @@ auto bind(socket const& unbound, ip_socket_address const& to_bind) -> void
 
     if (::bind(unbound.get_native_handle(), addr, addrlen) == -1)
 	throw std::runtime_error{"An error occured when binding a socket: " +
-		                 get_errno_as_string()};    
+		                 get_errno_as_string()};
+}
+
+auto accept(socket const& server) -> socket
+{
+    int sockfd = ::accept(server.get_native_handle(), nullptr, nullptr);
+    if (sockfd == -1)
+	throw std::runtime_error{"An error occured while accepting a client: " +
+				 get_errno_as_string()};
+    return socket{sockfd, server.get_ip_protocol()};
 }
     
 } // socket_io
