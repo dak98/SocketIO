@@ -41,11 +41,9 @@ public:
     auto get_socket(int const id) const -> socket;
     auto get_id(socket const& for_client) const -> int;
 
-    /*
-     * @throws - std::out_of_range => element with specified key does not exist
-     */    
-    auto remove(socket const& for_client) -> void;
-    auto remove(int const id) -> void;
+    // If the client is not registered, nothing happends    
+    auto remove(socket const& for_client) noexcept -> void;
+    auto remove(int const id) noexcept -> void;
 
     /*
      * @throws - std::bad_alloc => could not allocate the vector
