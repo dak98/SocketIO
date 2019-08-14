@@ -10,6 +10,14 @@
 
 namespace socket_io
 {
+
+static inline auto bind_wrapper(socket const& unbound, sockaddr* addr,
+				socklen_t addrlen) -> void
+{
+    if (::bind(unbound.get_native_handle(), addr, addrlen) == -1)
+	throw std::runtime_error{"An error occured when binding a socket: " +
+		                 get_errno_as_string()};    
+}
     
 auto bind(socket const& unbound, ip_socket_address const& to_bind) -> void
 {
@@ -20,28 +28,21 @@ auto bind(socket const& unbound, ip_socket_address const& to_bind) -> void
 	(!is_ipv4 && ip_version == ip_protocol::IPv4))
 	throw std::logic_error{"Socket and address have different protocols"};
     
-    sockaddr* addr;
-    socklen_t addrlen;
     if (is_ipv4)
     {
-	auto tmp_to_bind = boost::get<ipv4_socket_address>(to_bind);
-	
-        addrlen = sizeof(sockaddr_in);
+	auto tmp_to_bind = boost::get<ipv4_socket_address>(to_bind);	
 	sockaddr_in addr_in = tmp_to_bind.get_native_handle();
-	addr = reinterpret_cast<sockaddr*>(&addr_in);	
+	socket_io::bind_wrapper(unbound, reinterpret_cast<sockaddr*>(&addr_in),
+				sizeof(sockaddr_in));
+	
     }
     else
     {
-	auto tmp_to_bind = boost::get<ipv6_socket_address>(to_bind);
-	
-        addrlen = sizeof(sockaddr_in6);
+	auto tmp_to_bind = boost::get<ipv6_socket_address>(to_bind);	
 	sockaddr_in6 addr_in6 = tmp_to_bind.get_native_handle();
-	addr = reinterpret_cast<sockaddr*>(&addr_in6);
+	socket_io::bind_wrapper(unbound, reinterpret_cast<sockaddr*>(&addr_in6),
+				sizeof(sockaddr_in6));
     }
-
-    if (::bind(unbound.get_native_handle(), addr, addrlen) == -1)
-	throw std::runtime_error{"An error occured when binding a socket: " +
-		                 get_errno_as_string()};
 }
 
 auto accept(socket const& server) -> socket

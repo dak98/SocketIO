@@ -14,6 +14,14 @@
 namespace socket_io
 {
 
+static inline auto connect(socket const& not_connected, sockaddr* addr,
+			   socklen_t addrlen) -> void
+{
+    if (::connect(not_connected.get_native_handle(), addr, addrlen) == -1)
+	throw std::runtime_error{"An error occured when connecting a client: " +
+		                 get_errno_as_string()};    
+}
+
 client::client(ip_socket_address const& address_of_server)
     : client{address_of_server.type() == typeid(ipv4_socket_address)
 	? socket{ip_protocol::IPv4}
@@ -30,28 +38,21 @@ client::client(socket&& main_socket,
 	(!is_ipv4 && ip_version == ip_protocol::IPv4))
 	throw std::logic_error{"Socket and address have different protocols"};
     
-    sockaddr* addr;
-    socklen_t addrlen;
     if (is_ipv4)
     {
-	auto tmp_to_bind = boost::get<ipv4_socket_address>(address_of_server);
-	
-        addrlen = sizeof(sockaddr_in);
+	auto tmp_to_bind = boost::get<ipv4_socket_address>(address_of_server);	
 	sockaddr_in addr_in = tmp_to_bind.get_native_handle();
-	addr = reinterpret_cast<sockaddr*>(&addr_in);
+	socket_io::connect(main_socket, reinterpret_cast<sockaddr*>(&addr_in),
+			   sizeof(sockaddr_in));
     }
     else
     {
-	auto tmp_to_bind = boost::get<ipv6_socket_address>(address_of_server);
-	
-        addrlen = sizeof(sockaddr_in6);
+	auto tmp_to_bind = boost::get<ipv6_socket_address>(address_of_server);	
 	sockaddr_in6 addr_in6 = tmp_to_bind.get_native_handle();
-	addr = reinterpret_cast<sockaddr*>(&addr_in6);
+	socket_io::connect(main_socket, reinterpret_cast<sockaddr*>(&addr_in6),
+			   sizeof(sockaddr_in6));
     }
 
-    if (::connect(main_socket.get_native_handle(), addr, addrlen) == -1)
-	throw std::runtime_error{"An error occured when connecting a client: " +
-		                 get_errno_as_string()};
 
     std::string idStr;
     main_socket >> idStr;
