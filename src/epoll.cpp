@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <sys/epoll.h>
 #include <stdexcept>
+#include <system_error>
 #include <unistd.h>
 
 #include <utils.hpp>
@@ -74,7 +75,10 @@ auto epoll::remove(socket const& to_stop_monitor) -> void
 auto epoll::get_event() const -> event
 {
     epoll_event events[1];
-    if (epoll_wait(handle, events, 1, -1) == -1)
+    int error_code = epoll_wait(handle, events, 1, -1);
+    if (error_code == -1 && errno == EINTR)
+	throw std::system_error{std::make_error_code(std::errc::interrupted)};
+    if (error_code == -1)
 	throw std::runtime_error{"An error occured while acquiring an event: " +
 		                 get_errno_as_string()};
 

@@ -52,7 +52,8 @@ public:
     auto get_native_handle() const noexcept -> int { return handle; }
 
     /*
-     * @throws - std::runtime_error => an error occured while acquiring an event
+     * @throws - std::system_error => interupted by a signal
+     *         - std::runtime_error => an error occured while acquiring an event
      */
     auto get_event() const -> event;
 private:
