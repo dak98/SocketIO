@@ -39,9 +39,11 @@ public:
 
     auto get_address_of_server() const noexcept -> ip_socket_address
     { return address_of_server; }
+    auto get_id() const noexcept -> int { return id; }
 private:
     socket main_socket;
     ip_socket_address address_of_server;
+    int id; // Id given by the server
 }; // client
 
 } // socket_io

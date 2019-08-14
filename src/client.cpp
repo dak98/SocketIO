@@ -52,6 +52,10 @@ client::client(socket&& main_socket,
     if (::connect(main_socket.get_native_handle(), addr, addrlen) == -1)
 	throw std::runtime_error{"An error occured when connecting a client: " +
 		                 get_errno_as_string()};
+
+    std::string idStr;
+    main_socket >> idStr;
+    id = string_to_integer<int>(idStr);
 }
     
 client::~client() noexcept

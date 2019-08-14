@@ -20,7 +20,7 @@ auto server::accept_clients() -> void
 	{
 	    socket client = accept(main_socket);
 	    int const id = connected.add(client);
-	    client << "{- INIT -} ID=" + std::to_string(id);
+	    client << std::to_string(id);
 	    epoll.add(client, EPOLLIN);
 	}
 	catch (...)
