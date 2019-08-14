@@ -40,6 +40,7 @@ socket::socket(ip_protocol const& ip_version)
 }
 
 socket::socket(int const sockfd, ip_protocol const& ip_version)
+    : handle{sockfd}, ip_version{ip_version}
 {
     if (ip_version == ip_protocol::IPv4)
     {		    
