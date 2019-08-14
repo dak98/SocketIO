@@ -46,8 +46,8 @@ auto epoll::operator=(epoll&& other) noexcept -> epoll&
 auto epoll::add(socket const& to_monitor, uint32_t const events) -> void
 {
     int const sockfd = to_monitor.get_native_handle();
-    epoll_event event { events, { .fd = sockfd } };
-    if (epoll_ctl(handle, EPOLL_CTL_ADD, sockfd, &event) == -1)
+    epoll_event config { events, { .fd = sockfd } };
+    if (epoll_ctl(handle, EPOLL_CTL_ADD, sockfd, &config) == -1)
 	throw std::runtime_error{"An error occured while adding a fd: " +
 		                 get_errno_as_string()};
     monitored_sockets.push_back({sockfd, to_monitor.get_ip_protocol()});
@@ -56,8 +56,8 @@ auto epoll::add(socket const& to_monitor, uint32_t const events) -> void
 auto epoll::remove(socket const& to_stop_monitor) -> void
 {
     int const sockfd = to_stop_monitor.get_native_handle();
-    epoll_event event { 0, { .fd = sockfd } };
-    if (epoll_ctl(handle, EPOLL_CTL_DEL, sockfd, &event) == -1)
+    epoll_event config { 0, { .fd = sockfd } };
+    if (epoll_ctl(handle, EPOLL_CTL_DEL, sockfd, &config) == -1)
     {
 	if (errno == EBADF)
 	    return;	
