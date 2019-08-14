@@ -27,9 +27,9 @@ client::client(ip_socket_address const& address_of_server)
 	? socket{ip_protocol::IPv4}
         : socket{ip_protocol::IPv6}, address_of_server} {}
 
-client::client(socket&& main_socket,
+client::client(socket&& client,
 	       ip_socket_address const& address_of_server)
-    : main_socket{std::move(main_socket)}, address_of_server{address_of_server}
+    : main_socket{std::move(client)}, address_of_server{address_of_server}
 {
     bool is_ipv4 = address_of_server.type() == typeid(ipv4_socket_address);
     auto ip_version = main_socket.get_ip_protocol();

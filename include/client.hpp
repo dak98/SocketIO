@@ -25,7 +25,7 @@ public:
     /*
      * @throws - std::logic_error => socket and address have different protocols
      */
-    client(socket&& main_socket, ip_socket_address const& address_of_server);
+    client(socket&& client, ip_socket_address const& address_of_server);
 
     // Copy operations are deleted as sockets cannot be copied
     client(client const& other) = delete;
