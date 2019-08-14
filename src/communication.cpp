@@ -3,8 +3,9 @@
 #include <cstdio>
 #include <arpa/inet.h>
 #include <limits>
-#include <stdexcept>
 #include <sys/socket.h>
+#include <stdexcept>
+#include <system_error>
 #include <sys/types.h>
 
 #include <utils.hpp>
@@ -31,11 +32,11 @@ auto operator<<(socket& dst, std::string const& to_send) -> socket&
     if (snprintf(buffer, length + 1, "%s", to_send.c_str()) < 0)
 	throw std::invalid_argument{"Input message is wrong: " +
 		                    get_errno_as_string()};
-
+    
     // Send the data
     send(dst.get_native_handle(), static_cast<void*>(&with_byte_order),
 	 sizeof(uint32_t));
-    send(dst.get_native_handle(), static_cast<void*>(&buffer), sizeof(length));
+    send(dst.get_native_handle(), static_cast<void*>(&buffer), length);
 
     return dst;
 }
@@ -43,6 +44,8 @@ auto operator<<(socket& dst, std::string const& to_send) -> socket&
 static inline auto recv(int sockfd, void* buf, size_t len) -> int
 {
     ssize_t error_code = ::recv(sockfd, buf, len, 0);
+    if (error_code == 0)
+	throw std::system_error{std::make_error_code(std::errc::broken_pipe)};
     if (error_code == -1)
 	throw std::runtime_error{"An error occured while reading the data: " +
 		                 get_errno_as_string()};
