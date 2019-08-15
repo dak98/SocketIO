@@ -22,6 +22,9 @@ auto bind(socket const& unbound, ip_socket_address const& to_bind) -> void;
 auto accept(socket const& server) -> socket;
 
 auto shutdown(socket const& connected) noexcept -> void;
+
+auto is_socket_handle(int const handle, ip_protocol const& ip_version) noexcept
+    -> bool;
     
 } // socket_io
 

@@ -1,34 +1,17 @@
 #include <socket.hpp>
 
-#include <cerrno>
-#include <netinet/in.h>
 #include <stdexcept>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
 
+#include <connection.hpp>
 #include <utils.hpp>
 
 #define SOCKFD_AFTER_MOVE 1
 
 namespace socket_io
 {
-
-static auto check_socket_address(int const sockfd, sockaddr* addr,
-				 socklen_t addrlen,
-				 ip_protocol const& ip_version) -> void
-{
-    getsockname(sockfd, addr, &addrlen);
-
-    if (addr->sa_family != static_cast<int>(ip_version))
-	throw std::logic_error{"Socket and address have different protocols"};
-
-    // EFAULT and EINVAL should not happen so they are not checked
-    if (errno == EBADF || errno == ENOTSOCK)
-	throw std::invalid_argument{"Argument is not a valid socket"};
-    if (errno == ENOTSOCK)
-	throw std::runtime_error{"Out of resources"};    
-}
 
 socket::socket(ip_protocol const& ip_version)
     : ip_version{ip_version}
@@ -42,20 +25,8 @@ socket::socket(ip_protocol const& ip_version)
 socket::socket(int const sockfd, ip_protocol const& ip_version)
     : handle{sockfd}, ip_version{ip_version}
 {
-    if (ip_version == ip_protocol::IPv4)
-    {		    
-        socklen_t addrlen = sizeof(sockaddr_in);
-	sockaddr_in addr_in;
-	check_socket_address(sockfd, reinterpret_cast<sockaddr*>(&addr_in),
-			     addrlen, ip_version);
-    }
-    else
-    {
-        socklen_t addrlen = sizeof(sockaddr_in6);
-	sockaddr_in6 addr_in6;
-	check_socket_address(sockfd, reinterpret_cast<sockaddr*>(&addr_in6),
-			     addrlen, ip_version);
-    }
+    if (!is_socket_handle(sockfd, ip_version))
+	std::invalid_argument{"Not a valid socket handle"};
 }
 
 socket::socket(socket&& other) noexcept

@@ -58,5 +58,28 @@ auto shutdown(socket const& connected) noexcept -> void
 {
     shutdown(connected.get_native_handle(), SHUT_RDWR);
 }
+
+auto is_socket_handle(int const handle, ip_protocol const& ip_version) noexcept
+    -> bool
+{
+    sockaddr addr;
+    socklen_t addrlen = sizeof(sockaddr);
+
+    getsockname(handle, &addr, &addrlen);
+
+    if (addrlen == sizeof(sockaddr_in) && ip_version == ip_protocol::IPv6)
+	return false;
+    if (addrlen == sizeof(sockaddr_in6) && ip_version == ip_protocol::IPv4)
+	return false;	
+
+    // EFAULT and EINVAL should not happen so they are not checked
+    if (errno == EBADF || errno == ENOTSOCK)
+	return false;
+    if (errno == ENOTSOCK)
+	return false;
+
+    return true;
+}
+
     
 } // socket_io
