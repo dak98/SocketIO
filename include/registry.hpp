@@ -9,12 +9,13 @@
 #include <vector>
 
 #include "socket.hpp"
+#include "socket_view.hpp"
     
 namespace socket_io
 {
 
 /*
- * Holds a bimap between:
+ * Holds a map between:
  * - ID of the client given by the server,
  * - a socket assigned to the server for communication with the client.
  *
@@ -23,37 +24,32 @@ namespace socket_io
 class registry_of_clients
 {
     using client_id = int;
-    using socket_for_client = std::pair<int, ip_protocol>;
-    using hash = boost::hash<socket_for_client>;
 public:
     explicit registry_of_clients(int const base_id = 100)
 	: base_id{base_id} {}
 
     /*
-     * @returns Id of the new entry
      * @throws - std::runtime_error => no free ID available
-     */
-    auto add(socket const& for_client) -> int;
+     */    
+    auto get_new_id() const -> int;
+    
+
+    auto add(int const id, socket&& for_client) -> void;
 
     /*
+     * @brief Removes the socket from the registry and then returns it
      * @throws - std::out_of_range => element with specified key does not exist
      */
-    auto get_socket(int const id) const -> socket;
-    auto get_id(socket const& for_client) const -> int;
-
-    // If the client is not registered, nothing happends    
-    auto remove(socket const& for_client) noexcept -> void;
-    auto remove(int const id) noexcept -> void;
+    auto get_client(int const id) -> socket;
 
     /*
+     * @brief Removes all the sockets from the registry and then returns them
      * @throws - std::bad_alloc => could not allocate the vector
      */
-    auto get_ids() const -> std::vector<client_id>;
-    auto get_sockets() const -> std::vector<socket>;
+    auto get_clients() -> std::vector<socket>;
 private:
     int const base_id;
-    std::unordered_map<client_id, socket_for_client> client_to_socket;
-    std::unordered_map<socket_for_client, client_id, hash> socket_to_client;
+    std::unordered_map<client_id, socket> client_to_socket;
 }; // registry_of_clients
     
 } // socket_io
