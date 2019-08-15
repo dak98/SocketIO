@@ -4,6 +4,7 @@
 #include <string>
 
 #include "protocols.hpp"
+#include "socket_view.hpp"
 
 namespace socket_io
 {
@@ -30,6 +31,9 @@ public:
     
     auto operator=(socket const& other) -> socket& = delete;
     auto operator=(socket&& other) noexcept -> socket&;
+
+    auto make_view() const noexcept -> socket_view
+    { return {handle, ip_version}; }
 
     auto get_ip_protocol() const -> ip_protocol { return ip_version; }
 
