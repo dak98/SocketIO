@@ -6,13 +6,13 @@
 #include <utility>
 
 #include "socket.hpp"
+#include "socket_view.hpp"
 
 namespace socket_io
 {
 
 class epoll
 {
-    using socket_data = std::pair<int, ip_protocol>;
 public:
     /* 
      * Because of this struct we hide the usage of union and the undefined
@@ -21,7 +21,7 @@ public:
     struct event
     {
 	uint32_t flags;
-	socket caused_by;
+	socket_view caused_by;
     }; // event
     
     /*
@@ -41,13 +41,13 @@ public:
     /*
      * @throws - std::runtime_error => an error occured while adding a fd
      */
-    auto add(socket const& to_monitor, uint32_t const events) -> void;
+    auto add(socket_view const& to_monitor, uint32_t const events) -> void;
     /*
      * If the socket is not being monitored, nothing happends
      *
      * @throws - std::runtime_error => an error occured while removing a fd
      */
-    auto remove(socket const& to_stop_monitor) -> void;
+    auto remove(socket_view const& to_stop_monitor) -> void;
 
     auto get_native_handle() const noexcept -> int { return handle; }
 
@@ -58,7 +58,7 @@ public:
     auto get_event() const -> event;
 private:
     int handle;
-    std::vector<socket_data> monitored_sockets;
+    std::vector<socket_view> monitored_sockets;
 }; // epoll
     
 } // socket_io

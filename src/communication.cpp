@@ -20,7 +20,7 @@ static inline auto send(int sockfd, void const* buf, size_t len) -> void
 		                 get_errno_as_string()};
 }
 
-auto operator<<(socket& dst, std::string const& to_send) -> socket&
+auto operator<<(socket_view& dst, std::string const& to_send) -> socket_view&
 {
     // Prepare data to send
     std::string::size_type const length = to_send.length();
@@ -53,7 +53,7 @@ static inline auto recv(int sockfd, void* buf, size_t len) -> int
 }
 
 // TODO: Handle peer disconnect
-auto operator>>(socket& src, std::string& buffer) -> socket&
+auto operator>>(socket_view& src, std::string& buffer) -> socket_view&
 {
     uint32_t with_byte_order;
     recv(src.get_native_handle(), static_cast<void*>(&with_byte_order),
