@@ -63,7 +63,7 @@ auto operator>>(socket& src, std::string& buffer) -> socket&
     std::string::size_type const length = ntohl(with_byte_order);
 
     char buf[length + 1];
-    recv(src.get_native_handle(), static_cast<void*>(&buf), sizeof(length));
+    recv(src.get_native_handle(), static_cast<void*>(&buf), length);
     buf[length] = '\0';
 
     buffer = std::string{buf};
