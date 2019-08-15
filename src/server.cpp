@@ -19,9 +19,13 @@ auto server::accept_clients() -> void
 	try
 	{
 	    socket client = accept(main_socket);
-	    int const id = connected.add(client);
-	    client << std::to_string(id);
-	    epoll.add(client, EPOLLIN);
+	    socket_view view = client.make_view();
+	    
+	    int const id = connected.get_new_id();
+	    view << std::to_string(id);
+	    
+	    epoll.add(view, EPOLLIN);
+	    connected.add(id, std::move(client));
 	}
 	catch (...)
 	{ /* Ignore the exceptions */ }
@@ -48,11 +52,13 @@ server::server(std::string const& port, ip_protocol const& ip_version)
 
 server::~server() noexcept
 {
-    std::vector<socket> sockets_for_clients = connected.get_sockets();
+    std::vector<socket> sockets_for_clients = connected.get_clients();
     for (auto& socket : sockets_for_clients)
     {
-	socket << "{- SERVER_EXIT -}";
-	epoll.remove(socket);
+	socket_view view = socket.make_view();
+	
+	view << "{- SERVER_EXIT -}";	
+	epoll.remove(view);
 	shutdown(socket);
     }
     shutdown(main_socket);
@@ -68,10 +74,12 @@ auto server::receive() -> std::string
     return message;
 }
 
-auto server::send(int const client_id, std::string const& message) const -> void
+auto server::send(int const client_id, std::string const& message) -> void
 {
-    socket client = connected.get_socket(client_id);
-    client << message;
+    socket client = connected.get_client(client_id);
+    socket_view view = client.make_view();
+    view << message;
+    connected.add(client_id, std::move(client));    
 }
     
 } // socket_io

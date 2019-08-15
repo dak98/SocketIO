@@ -38,7 +38,7 @@ public:
      *         - std::bad_alloc => from std::string constructor
      */    
     auto receive() -> std::string;
-    auto send(int const client_id, std::string const& message) const -> void;
+    auto send(int const client_id, std::string const& message) -> void;
 private:
     ip_protocol ip_version;
     socket main_socket;    

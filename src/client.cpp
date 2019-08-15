@@ -55,7 +55,8 @@ client::client(socket&& client,
 
 
     std::string idStr;
-    main_socket >> idStr;
+    socket_view view = main_socket.make_view();
+    view >> idStr;
     id = string_to_integer<int>(idStr);
 }
     
@@ -66,13 +67,15 @@ client::~client() noexcept
 
 auto client::send(std::string const& message) -> void
 {
-    main_socket << message;
+    socket_view view = main_socket.make_view();
+    view << message;
 }
 
 auto client::receive() -> std::string
 {
     std::string buffer;
-    main_socket >> buffer;
+    socket_view view = main_socket.make_view();
+    view >> buffer;
     return buffer;
 }
     
