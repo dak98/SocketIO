@@ -8,13 +8,12 @@
 namespace socket_io
 {
 
+class socket;
+
 class socket_view
 {
 public:
-    /*
-     * @throws - std::invalid_argument => not a valid socket handle
-     */
-    socket_view(int const handle, ip_protocol const& ip_version);
+    socket_view() = delete;
 
     /*
      * @throws - std::runtime_error => not a valid socket handle
@@ -28,8 +27,12 @@ public:
      */
     auto to_string() const -> std::string;
 private:
+    socket_view(int const handle, ip_protocol const& ip_version);
+    
     int handle;
     ip_protocol ip_version;
+
+    friend class socket;
 };
 
 } // socket_io

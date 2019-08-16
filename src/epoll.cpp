@@ -13,7 +13,8 @@
 namespace socket_io
 {
 
-epoll::epoll(){
+epoll::epoll()
+{
     handle = epoll_create1(0);
     if (handle == -1)
 	throw std::runtime_error{"An error occured while creating epoll: " +
@@ -88,8 +89,7 @@ auto epoll::get_event() const -> event
 			   [=](socket_view const& view)
 			   { return view.get_native_handle() ==
 			            events[0].data.fd; });
-    return {events[0].events, socket_view{it->get_native_handle(),
-		                          it->get_ip_protocol()}};
+    return {events[0].events, *it};
 }
     
 } // socket_io
