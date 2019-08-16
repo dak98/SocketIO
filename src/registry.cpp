@@ -8,6 +8,8 @@ namespace socket_io
 
 auto registry_of_clients::get_new_id() const -> int
 {
+    std::lock_guard<std::mutex> lock(get_new_id_mutex);
+    
     int id = base_id;
     bool found_id = false;
     for (; id < std::numeric_limits<int>::max() && !found_id; id++)
@@ -20,6 +22,8 @@ auto registry_of_clients::get_new_id() const -> int
 
 auto registry_of_clients::add(int const id, socket&& socket) -> void
 {
+    std::lock_guard<std::mutex> lock(add_remove_mutex);
+    
     auto result = client_to_socket.emplace(id, std::move(socket));
 
     if (result.second)
@@ -27,16 +31,17 @@ auto registry_of_clients::add(int const id, socket&& socket) -> void
 }
 
 auto registry_of_clients::get_client(int const id) -> socket
-try
 {
+    std::lock_guard<std::mutex> lock(add_remove_mutex);
+    
     client_to_socket.erase(id);
     return std::move(client_to_socket.at(id));
 }
-catch (...)
-{ /* Ignore the exceptions */ }
     
 auto registry_of_clients::get_clients() -> std::vector<socket>
 {
+    std::lock_guard<std::mutex> lock(add_remove_mutex);
+    
     std::vector<socket> sockets;
     for (auto&& [id, sock] : client_to_socket)
 	sockets.emplace_back(std::move(sock));

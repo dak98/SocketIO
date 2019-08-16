@@ -4,6 +4,7 @@
 #include <boost/functional/hash.hpp>
 
 #include <functional>
+#include <mutex>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -18,8 +19,6 @@ namespace socket_io
  * Holds a map between:
  * - ID of the client given by the server,
  * - a socket assigned to the server for communication with the client.
- *
- * It is NOT thread-safe
  */
 class registry_of_clients
 {
@@ -50,6 +49,9 @@ public:
 private:
     int const base_id;
     std::unordered_map<client_id, socket> client_to_socket;
+
+    mutable std::mutex get_new_id_mutex;
+    std::mutex add_remove_mutex;
 }; // registry_of_clients
     
 } // socket_io
