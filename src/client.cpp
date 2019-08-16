@@ -40,23 +40,22 @@ client::client(socket&& client,
     
     if (is_ipv4)
     {
-	auto tmp_to_bind = boost::get<ipv4_socket_address>(address_of_server);	
-	sockaddr_in addr_in = tmp_to_bind.get_native_handle();
+	auto to_connect = boost::get<ipv4_socket_address>(address_of_server);
+	sockaddr_in addr_in = to_connect.get_native_handle();
 	socket_io::connect(main_socket, reinterpret_cast<sockaddr*>(&addr_in),
 			   sizeof(sockaddr_in));
     }
     else
     {
-	auto tmp_to_bind = boost::get<ipv6_socket_address>(address_of_server);	
-	sockaddr_in6 addr_in6 = tmp_to_bind.get_native_handle();
+	auto to_connect = boost::get<ipv6_socket_address>(address_of_server);	
+	sockaddr_in6 addr_in6 = to_connect.get_native_handle();
 	socket_io::connect(main_socket, reinterpret_cast<sockaddr*>(&addr_in6),
 			   sizeof(sockaddr_in6));
     }
 
 
     std::string idStr;
-    socket_view view = main_socket.make_view();
-    view >> idStr;
+    main_socket.make_view() >> idStr;
     id = string_to_integer<int>(idStr);
 }
     
@@ -67,15 +66,13 @@ client::~client() noexcept
 
 auto client::send(std::string const& message) -> void
 {
-    socket_view view = main_socket.make_view();
-    view << message;
+    main_socket.make_view() << message;
 }
 
 auto client::receive() -> std::string
 {
     std::string buffer;
-    socket_view view = main_socket.make_view();
-    view >> buffer;
+    main_socket.make_view() >> buffer;
     return buffer;
 }
     

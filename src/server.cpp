@@ -77,8 +77,7 @@ auto server::receive() -> std::string
 auto server::send(int const client_id, std::string const& message) -> void
 {
     socket client = connected.get_client(client_id);
-    socket_view view = client.make_view();
-    view << message;
+    client.make_view() << message;
     connected.add(client_id, std::move(client));    
 }
     

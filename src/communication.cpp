@@ -41,6 +41,11 @@ auto operator<<(socket_view& dst, std::string const& to_send) -> socket_view&
     return dst;
 }
 
+auto operator<<(socket_view&& dst, std::string const& to_send) -> socket_view&
+{
+    return dst << to_send;
+}
+
 static inline auto recv(int sockfd, void* buf, size_t len) -> int
 {
     ssize_t error_code = ::recv(sockfd, buf, len, 0);
@@ -68,6 +73,11 @@ auto operator>>(socket_view& src, std::string& buffer) -> socket_view&
 
     buffer = std::string{buf};
     return src;
+}
+
+auto operator>>(socket_view&& src, std::string& buffer) -> socket_view&
+{
+    return src >> buffer;
 }
 
 } // socket_io
