@@ -12,9 +12,11 @@ auto registry_of_clients::get_new_id() const -> int
     
     int id = base_id;
     bool found_id = false;
-    for (; id < std::numeric_limits<int>::max() && !found_id; id++)
+    while (id < std::numeric_limits<int>::max() && !found_id)
 	if (client_to_socket.find(id) == client_to_socket.end())
 	    found_id = true;
+	else
+	    id++;
     if (!found_id)
 	throw std::runtime_error{"No free ID available"};
     return id;    
@@ -26,7 +28,7 @@ auto registry_of_clients::add(int const id, socket&& socket) -> void
     
     auto result = client_to_socket.emplace(id, std::move(socket));
 
-    if (result.second)
+    if (!result.second)
 	throw std::invalid_argument{"Failed to add the client to the registry"};
 }
 
