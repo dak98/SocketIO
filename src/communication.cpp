@@ -15,7 +15,10 @@ namespace socket_io
 
 static inline auto send(int sockfd, void const* buf, size_t len) -> void
 {
-    if (::send(sockfd, buf, len, MSG_NOSIGNAL) == -1)
+    int error_code = ::send(sockfd, buf, len, MSG_NOSIGNAL);
+    if (error_code == -1 && errno == EPIPE)
+	throw std::system_error{std::make_error_code(std::errc::broken_pipe)};
+    else if (error_code == -1)    
 	throw std::runtime_error{"An error occured while sending the data: " +
 		                 get_errno_as_string()};
 }
