@@ -24,7 +24,7 @@ auto server::accept_clients() -> void
 	    int const id = connected.get_new_id();
 	    view << std::to_string(id);
 	    
-	    epoll.add(view, EPOLLIN);
+	    epoll_handle.add(view, EPOLLIN);
 	    connected.add(id, std::move(client));
 	}
 	catch (...)
@@ -58,7 +58,7 @@ server::~server() noexcept
 	socket_view view = socket.make_view();
 	
 	view << "{- SERVER_EXIT -}";	
-	epoll.remove(view);
+	epoll_handle.remove(view);
 	shutdown(socket);
     }
     shutdown(main_socket);
@@ -67,11 +67,21 @@ server::~server() noexcept
 
 auto server::receive() -> std::string
 {
-    auto&& [flags, caused_by] = epoll.get_event();
+    auto&& [flags, caused_by] = epoll_handle.get_event();
 
     std::string message;
     caused_by >> message;
-    return message;
+    
+    if (message.find("FROM") == std::string::npos)
+    {
+	int const id = string_to_integer<int>(message);
+	socket client = connected.get_client(id);
+	epoll_handle.remove(client.make_view());
+    }
+
+    auto message_start_pos = message.find('}') + 2;
+    return message.substr(message_start_pos,
+			  message.length() - message_start_pos);
 }
 
 auto server::send(int const client_id, std::string const& message) -> void

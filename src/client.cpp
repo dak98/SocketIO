@@ -61,12 +61,13 @@ client::client(socket&& client,
     
 client::~client() noexcept
 {
+    main_socket.make_view() << std::to_string(id);
     shutdown(main_socket);
 }
 
 auto client::send(std::string const& message) -> void
 {
-    main_socket.make_view() << message;
+    main_socket.make_view() << "{FROM:" + std::to_string(id) + "} " + message;
 }
 
 auto client::receive() -> std::string
