@@ -87,8 +87,21 @@ auto server::receive() -> std::string
 auto server::send(int const client_id, std::string const& message) -> void
 {
     socket client = connected.get_client(client_id);
-    client.make_view() << message;
-    connected.add(client_id, std::move(client));    
+    try
+    {
+	client.make_view() << message;
+    }
+    catch (std::runtime_error const& e)
+    {
+	if (errno == EPIPE) // Client has disconnected
+	{
+	    epoll_handle.remove(client.make_view());
+	    shutdown(client);
+	    return;
+	}
+	throw;
+    }
+    connected.add(client_id, std::move(client));
 }
     
 } // socket_io
