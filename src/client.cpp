@@ -61,7 +61,12 @@ client::client(socket&& client,
     
 client::~client() noexcept
 {
-    main_socket.make_view() << std::to_string(id);
+    try
+    {
+	main_socket.make_view() << std::to_string(id);
+    }
+    catch (...)
+    { /* Ignore the exception */ }	
     shutdown(main_socket);
 }
 
