@@ -43,7 +43,7 @@ private:
     ip_protocol ip_version;
     socket main_socket;    
     ip_socket_address address_of_server;
-    epoll epoll;
+    epoll epoll_handle;
     registry_of_clients connected;
 }; // server
 
