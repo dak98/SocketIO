@@ -32,7 +32,13 @@ public:
      *                                started
      */
     explicit server(std::string const& port, ip_protocol const& ip_version);
+
+    // Copy operations are deleted as main_socket and epoll_handle cannot be copied
+    server(server const& other) = delete;
+    
     ~server() noexcept;
+
+    auto operator=(server const& other) -> server& = delete;
     /*
      * @throws - std::runtime_error => an error occured while acquiring an event
      *         - std::bad_alloc => from std::string constructor
