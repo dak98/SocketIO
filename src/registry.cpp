@@ -47,6 +47,7 @@ auto registry_of_clients::get_clients() -> std::vector<client_cell>
     std::vector<client_cell> sockets;
     for (auto&& [id, sock] : client_to_socket)
 	sockets.emplace_back(std::make_pair(id, std::move(sock)));
+    client_to_socket.clear();
     return sockets;
 }
 
