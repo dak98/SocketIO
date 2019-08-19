@@ -45,6 +45,9 @@ public:
      */    
     auto receive() -> std::string;
     auto send(int const client_id, std::string const& message) -> void;
+
+    using connected_client = std::pair<int, socket_view>;
+    auto get_connected_clients() -> std::vector<connected_client>;
 private:
     ip_protocol ip_version;
     socket main_socket;    

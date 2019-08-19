@@ -52,12 +52,13 @@ server::server(std::string const& port, ip_protocol const& ip_version)
 
 server::~server() noexcept
 {
-    std::vector<socket> sockets_for_clients = connected.get_clients();
-    for (auto& socket : sockets_for_clients)
+    using client_cell = registry_of_clients::client_cell;
+    std::vector<client_cell> sockets_for_clients = connected.get_clients();
+    for (auto& [id, socket] : sockets_for_clients)
     {
 	socket_view view = socket.make_view();
 	
-	view << "{- SERVER_EXIT -}";	
+	view << "{- SERVER_EXIT -}";
 	epoll_handle.remove(view);
 	shutdown(socket);
     }
@@ -103,5 +104,19 @@ auto server::send(int const client_id, std::string const& message) -> void
     }
     connected.add(client_id, std::move(client));
 }
-    
+
+auto server::get_connected_clients() -> std::vector<connected_client>
+{
+    using client_cell = registry_of_clients::client_cell;
+    std::vector<client_cell> connected_clients = connected.get_clients();
+
+    std::vector<connected_client> views;
+    for (auto& [id, socket] : connected_clients)
+    {
+	views.emplace_back(std::make_pair(id, socket.make_view()));
+	connected.add(id, std::move(socket));
+    }
+    return views;
+}
+
 } // socket_io
