@@ -40,14 +40,14 @@ auto registry_of_clients::get_client(int const id) -> socket
     return std::move(client_to_socket.at(id));
 }
     
-auto registry_of_clients::get_clients() -> std::vector<socket>
+auto registry_of_clients::get_clients() -> std::vector<client_cell>
 {
     std::lock_guard<std::mutex> lock(add_remove_mutex);
     
-    std::vector<socket> sockets;
+    std::vector<client_cell> sockets;
     for (auto&& [id, sock] : client_to_socket)
-	sockets.emplace_back(std::move(sock));
+	sockets.emplace_back(std::make_pair(id, std::move(sock)));
     return sockets;
 }
-    
+
 } // socket_io

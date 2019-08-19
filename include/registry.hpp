@@ -41,11 +41,12 @@ public:
      */
     auto get_client(int const id) -> socket;
 
+    using client_cell = std::pair<client_id, socket>;
     /*
      * @brief Removes all the sockets from the registry and then returns them
      * @throws - std::bad_alloc => could not allocate the vector
      */
-    auto get_clients() -> std::vector<socket>;
+    auto get_clients() -> std::vector<client_cell>;
 private:
     int const base_id;
     std::unordered_map<client_id, socket> client_to_socket;
