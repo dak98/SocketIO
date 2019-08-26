@@ -60,8 +60,8 @@ auto epoll::remove(socket_view const& to_stop_monitor) -> void
     epoll_event config { 0, { .fd = sockfd } };
     if (epoll_ctl(handle, EPOLL_CTL_DEL, sockfd, &config) == -1)
     {
-	if (errno == EBADF)
-	    return;	
+	if (errno == ENOENT)
+	    return;
 	throw std::runtime_error{"An error occured while removing a fd: " +
 		                 get_errno_as_string()};
     }
