@@ -40,4 +40,14 @@ TEST(socket_io_tests, socket_tests)
     EXPECT_EQ(ipv4_socket_mock2.get_ip_protocol(), ip_protocol::IPv4);
     EXPECT_EQ(ipv6_socket_mock2.get_native_handle(), ipv6_native_handle);
     EXPECT_EQ(ipv6_socket_mock2.get_ip_protocol(), ip_protocol::IPv6);
+
+    // socket_view tests
+    auto const ipv4_socket_view = ipv4_socket_mock2.make_view();
+    auto const ipv6_socket_view = ipv6_socket_mock2.make_view();
+
+    EXPECT_EQ(ipv4_socket_view.get_native_handle(), ipv4_native_handle);
+    EXPECT_EQ(ipv6_socket_view.get_native_handle(), ipv6_native_handle);
+
+    EXPECT_EQ(ipv4_socket_view.get_ip_protocol(), ip_protocol::IPv4);
+    EXPECT_EQ(ipv6_socket_view.get_ip_protocol(), ip_protocol::IPv6);    
 }
