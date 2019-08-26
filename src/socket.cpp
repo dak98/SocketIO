@@ -26,7 +26,7 @@ socket::socket(int const sockfd, ip_protocol const& ip_version)
     : handle{sockfd}, ip_version{ip_version}
 {
     if (!is_socket_handle(sockfd, ip_version))
-	std::invalid_argument{"Not a valid socket handle"};
+	throw std::invalid_argument{"Not a valid socket handle"};
 }
 
 socket::socket(socket&& other) noexcept
