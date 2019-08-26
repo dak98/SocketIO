@@ -1,23 +1,43 @@
-#include <iostream>
-
-#include <address.hpp>
 #include <socket.hpp>
 
-int main()
-{
+#include <gtest/gtest.h>
+
+#include <address.hpp>
+
+TEST(socket_io_tests, socket_tests)
+{    
     using socket_io::ip_protocol;
-    socket_io::socket socket1_test{ip_protocol::IPv4};
-    socket_io::socket socket2_test{ip_protocol::IPv6};
 
-    std::cout << socket1_test.to_string() << std::endl;
-    std::cout << socket2_test.to_string() << std::endl;
+    // Invalid sockfds tests
+    std::vector<int> invalid_sockfds{0, -1, 1000};
+    for (const auto invalid_sockfd : invalid_sockfds)
+    {
+	EXPECT_THROW(socket_io::socket(invalid_sockfd, ip_protocol::IPv4),
+		     std::invalid_argument);
+	EXPECT_THROW(socket_io::socket(invalid_sockfd, ip_protocol::IPv6),
+		     std::invalid_argument);
+    }
 
-    socket_io::ipv4_socket_address ipv4_test{"127.0.0.1", "8000"};
-    socket_io::ipv6_socket_address ipv6_test{"0:0:0:0:0:0:0:1", "80"};
+    socket_io::socket ipv4_socket_mock{ip_protocol::IPv4};
+    socket_io::socket ipv6_socket_mock{ip_protocol::IPv6};
 
-    socket1_test.bind(ipv4_test);
-    //    socket2_test.bind(ipv6_test);
+    int const ipv4_native_handle = ipv4_socket_mock.get_native_handle();
+    int const ipv6_native_handle = ipv6_socket_mock.get_native_handle();
+    
+    // Protocols mismatch tests
+    EXPECT_EQ(ipv4_socket_mock.get_ip_protocol(), ip_protocol::IPv4);
+    EXPECT_EQ(ipv6_socket_mock.get_ip_protocol(), ip_protocol::IPv6);
 
-    std::cout << socket1_test.to_string() << std::endl;
-    std::cout << socket2_test.to_string() << std::endl;
+    EXPECT_THROW(socket_io::socket(ipv4_native_handle, ip_protocol::IPv6),
+		 std::logic_error);
+    EXPECT_THROW(socket_io::socket(ipv6_native_handle, ip_protocol::IPv4),
+		 std::logic_error);
+    
+    socket_io::socket ipv4_socket_mock2 = std::move(ipv4_socket_mock);
+    socket_io::socket ipv6_socket_mock2 = std::move(ipv6_socket_mock);
+
+    EXPECT_EQ(ipv4_socket_mock2.get_native_handle(), ipv4_native_handle);
+    EXPECT_EQ(ipv4_socket_mock2.get_ip_protocol(), ip_protocol::IPv4);
+    EXPECT_EQ(ipv6_socket_mock2.get_native_handle(), ipv6_native_handle);
+    EXPECT_EQ(ipv6_socket_mock2.get_ip_protocol(), ip_protocol::IPv6);
 }
