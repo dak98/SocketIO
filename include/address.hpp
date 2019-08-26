@@ -28,11 +28,15 @@ public:
      */
     socket_address(std::string const& ip_address, std::string const& port);
 
-    /* 
+    /*
+     * Both INADDR_ANY and in6addr_any constants are supported
+     *
+     * Exception safety: Strong
      * @throws - std::invalid_argument => argument is not a proper IP address
      */
     auto set_ip_address(std::string const& ip_address) -> void;
     /* 
+     * Exception safety: Strong
      * @throws - std::invalid_argument => argument is not a proper port
      *         - std::out_of_range => port value out of range
      */    
