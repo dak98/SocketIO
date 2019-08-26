@@ -8,6 +8,8 @@
 
 #include <utils.hpp>
 
+#include <iostream>
+
 namespace socket_io
 {
 
@@ -65,17 +67,15 @@ auto is_socket_handle(int const handle, ip_protocol const& ip_version) noexcept
     sockaddr addr;
     socklen_t addrlen = sizeof(sockaddr);
 
-    getsockname(handle, &addr, &addrlen);
-
-    if (addrlen == sizeof(sockaddr_in) && ip_version == ip_protocol::IPv6)
+    if (getsockname(handle, &addr, &addrlen) == -1)
 	return false;
-    if (addrlen == sizeof(sockaddr_in6) && ip_version == ip_protocol::IPv4)
-	return false;	
 
-    // EFAULT and EINVAL should not happen so they are not checked
-    if (errno == EBADF || errno == ENOTSOCK)
+    if (addr.sa_family != AF_INET && addr.sa_family != AF_INET6)
 	return false;
-    if (errno == ENOTSOCK)
+
+    if (addr.sa_family == AF_INET && ip_version == ip_protocol::IPv6)
+	return false;
+    if (addr.sa_family == AF_INET6 && ip_version == ip_protocol::IPv4)
 	return false;
 
     return true;
