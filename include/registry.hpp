@@ -23,20 +23,29 @@ namespace socket_io
 class registry_of_clients
 {
     using client_id = int;
+    auto get_new_id() const -> int;
 public:
     explicit registry_of_clients(int const base_id = 100)
 	: base_id{base_id} {}
 
     /*
-     * @throws - std::runtime_error => no free ID available
-     */    
-    auto get_new_id() const -> int;
+     * NOTE: Only r-value reference version for add() methods is provided as the
+     * socket class is move-only
+     */
     
+    /*
+     * @return Id of the newly added client in the registry
+     * @throws - std::runtime_error => no free ID available
+     *         - std::invalid_argument => failed to add a client
+     *         - std::system_error => failed to lock a mutex
+     */
+    auto add(socket&& new_client) -> int;
     /*
      * @throws - std::invalid_argument => failed to add a client
      *         - std::system_error => failed to lock a mutex
+     *         - std::runtime_error => specified id already taken
      */
-    auto add(int const id, socket&& for_client) -> void;
+    auto add(int const id, socket&& client) -> void;
 
     /*
      * @brief Removes the socket from the registry and then returns it

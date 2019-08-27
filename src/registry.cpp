@@ -22,11 +22,22 @@ auto registry_of_clients::get_new_id() const -> int
     return id;    
 }
 
-auto registry_of_clients::add(int const id, socket&& socket) -> void
+auto registry_of_clients::add(socket&& new_client) -> int
 {
+    int const id = get_new_id();
+
+    add(id, std::move(new_client));
+    return id;
+}
+
+auto registry_of_clients::add(int const id, socket&& client) -> void
+{
+    if (client_to_socket.find(id) != client_to_socket.end())
+	throw std::runtime_error{"Specified id already taken"};
+    
     std::lock_guard<std::mutex> lock(add_remove_mutex);
     
-    auto result = client_to_socket.emplace(id, std::move(socket));
+    auto result = client_to_socket.emplace(id, std::move(client));
 
     if (!result.second)
 	throw std::invalid_argument{"Failed to add the client to the registry"};

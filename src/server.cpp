@@ -20,12 +20,11 @@ auto server::accept_clients() -> void
 	{
 	    socket client = accept(main_socket);
 	    socket_view view = client.make_view();
-	    
-	    int const id = connected.get_new_id();
-	    view << std::to_string(id);
-	    
+
 	    epoll_handle.add(view, EPOLLIN);
-	    connected.add(id, std::move(client));
+	    
+	    int const id = connected.add(std::move(client));
+	    view << std::to_string(id);
 	}
 	catch (...)
 	{ /* Ignore the exceptions */ }
@@ -58,7 +57,7 @@ server::~server() noexcept
     {
 	socket_view view = socket.make_view();
 	
-	view << "{- SERVER_EXIT -}";
+	view << "EXIT";
 	epoll_handle.remove(view);
 	shutdown(socket);
     }
