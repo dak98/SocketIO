@@ -32,12 +32,16 @@ public:
      */    
     auto get_new_id() const -> int;
     
-
+    /*
+     * @throws - std::invalid_argument => failed to add a client
+     *         - std::system_error => failed to lock a mutex
+     */
     auto add(int const id, socket&& for_client) -> void;
 
     /*
      * @brief Removes the socket from the registry and then returns it
      * @throws - std::out_of_range => element with specified key does not exist
+     *         - std::system_error => failed to lock a mutex
      */
     auto get_client(int const id) -> socket;
 
@@ -45,6 +49,7 @@ public:
     /*
      * @brief Removes all the sockets from the registry and then returns them
      * @throws - std::bad_alloc => could not allocate the vector
+     *         - std::system_error => failed to lock a mutex
      */
     auto get_clients() -> std::vector<client_cell>;
 private:
