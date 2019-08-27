@@ -25,6 +25,13 @@ TEST(socket_io_tests, socket_tests)
     int const ipv4_native_handle = ipv4_socket_mock.get_native_handle();
     int const ipv6_native_handle = ipv6_socket_mock.get_native_handle();
 
+    // is_socket_handle() tests
+    EXPECT_FALSE(is_socket_handle(ipv4_native_handle, ip_protocol::IPv6));
+    EXPECT_FALSE(is_socket_handle(ipv6_native_handle, ip_protocol::IPv4));
+
+    EXPECT_TRUE(is_socket_handle(ipv4_native_handle, ip_protocol::IPv4));
+    EXPECT_TRUE(is_socket_handle(ipv6_native_handle, ip_protocol::IPv6));
+
     // Protocols mismatch tests
     EXPECT_EQ(ipv4_socket_mock.get_ip_protocol(), ip_protocol::IPv4);
     EXPECT_EQ(ipv6_socket_mock.get_ip_protocol(), ip_protocol::IPv6);
@@ -36,6 +43,16 @@ TEST(socket_io_tests, socket_tests)
 
     socket_io::socket ipv4_socket_mock2 = std::move(ipv4_socket_mock);
     socket_io::socket ipv6_socket_mock2 = std::move(ipv6_socket_mock);
+
+    EXPECT_FALSE(is_socket_handle(ipv4_socket_mock.get_native_handle(),
+				  ip_protocol::IPv4));
+    EXPECT_FALSE(is_socket_handle(ipv6_socket_mock.get_native_handle(),
+				  ip_protocol::IPv6));
+
+    EXPECT_TRUE(is_socket_handle(ipv4_socket_mock2.get_native_handle(),
+				  ip_protocol::IPv4));
+    EXPECT_TRUE(is_socket_handle(ipv6_socket_mock2.get_native_handle(),
+				  ip_protocol::IPv6));    
 
     EXPECT_EQ(ipv4_socket_mock2.get_native_handle(), ipv4_native_handle);
     EXPECT_EQ(ipv4_socket_mock2.get_ip_protocol(), ip_protocol::IPv4);
