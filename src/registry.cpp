@@ -46,9 +46,10 @@ auto registry_of_clients::add(int const id, socket&& client) -> void
 auto registry_of_clients::get_client(int const id) -> socket
 {
     std::lock_guard<std::mutex> lock(add_remove_mutex);
-    
+
+    socket client = std::move(client_to_socket.at(id));
     client_to_socket.erase(id);
-    return std::move(client_to_socket.at(id));
+    return client;
 }
     
 auto registry_of_clients::get_clients() -> std::vector<client_cell>
