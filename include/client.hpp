@@ -23,6 +23,7 @@ public:
      *  cannot be copied
      */
     /*
+     * NOTE: Ownership of the socket is not returned when an exception is thrown
      * @throws - std::logic_error => socket and address have different protocols
      */
     client(socket&& client, ip_socket_address const& address_of_server);
