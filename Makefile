@@ -1,4 +1,4 @@
-CC:=clang
+CC:=g++
 
 PROJDIR:=$(HOME)/Projects/SocketsIO
 SRCDIR:=src
@@ -17,7 +17,7 @@ TESTS:=$(shell find $(TESTDIR) -type f -name *.$(SRCEXT))
 
 CFLAGS:=-g -Wall -Wextra -std=c++17 #-DSOCKETIO_DEBUG -DBOOST_LOG_DYN_LINK
 INC:=-I include
-LIB:=-l$(NAME) -lgtest -lstdc++ -pthread #-lboost_log -lboost_log_setup
+LIB:=-l$(NAME) -lgtest -lstdc++ -pthread
 
 $(TARGET): $(OBJECTS)
 	@mkdir -p $(TARGETDIR)
