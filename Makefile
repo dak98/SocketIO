@@ -1,10 +1,12 @@
-CC:=clang-6.0
+CC:=clang
 
 PROJDIR:=$(HOME)/Projects/SocketsIO
 SRCDIR:=src
+INCDIR:=include
 BUILDDIR:=build
 TESTDIR:=test
 TARGETDIR:=bin
+INSTALLDIR:=/usr/local
 NAME:=sockio
 TARGET:=$(TARGETDIR)/lib$(NAME).so
 
@@ -26,9 +28,19 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 	@mkdir -p $(BUILDDIR)
 	@echo "$(CC) $(CFLAGS) -c -fPIC -D _DEFAULT_SOURCE $(INC) $< -o $@"; $(CC) $(CFLAGS) -c -fPIC -D _DEFAULT_SOURCE $(INC) $< -o $@
 
+install: $(TARGET)
+	@echo "Installing ..."
+	@echo "cp $(TARGET) $(INSTALLDIR)/lib"; cp $(TARGET) $(INSTALLDIR)/lib
+	@mkdir $(INSTALLDIR)/include/socket_io
+	@echo "cp $(INCDIR)/* $(INSTALLDIR)/include/socket_io"; cp $(INCDIR)/* $(INSTALLDIR)/include/socket_io
+
 clean:
 	@echo "Cleaning ..."
 	@echo "$(RM) -r $(BUILDDIR) $(TARGETDIR)"; $(RM) -r $(BUILDDIR) $(TARGETDIR)
+
+uninstall:
+	@echo "Uninstalling ..."
+	@echo "$(RM) -r $(INSTALLDIR)/include/socket_io $(INSTALLDIR)/lib/lib$(NAME).so"; $(RM) -r $(INSTALLDIR)/include/socket_io $(INSTALLDIR)/lib/lib$(NAME).so
 
 test: $(TARGET) $(TESTS)
 	$(CC) $(CFLAGS) -Lbin -Wl,-rpath=bin $(LIB) $(INC) $(TESTS) -o bin/tester
